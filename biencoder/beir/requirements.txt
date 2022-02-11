@@ -1,0 +1,4 @@
+more-itertools==8.8.0
+tqdm==4.61.0
+retry==0.9.2
+beir==0.2.3

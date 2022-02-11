@@ -1,0 +1,5 @@
+*.pickle
+*.json
+*.DS_Store
+*.pyc
+embeddings/

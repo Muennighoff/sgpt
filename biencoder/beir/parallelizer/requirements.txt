@@ -1,0 +1,2 @@
+more-itertools==8.8.0
+tqdm==4.61.0

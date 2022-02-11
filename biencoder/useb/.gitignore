@@ -1,0 +1,8 @@
+*.pickle
+*.json
+*.DS_Store
+*.pyc
+datasets/
+embeddings/
+data-eval*
+data-train*
