@@ -457,35 +457,41 @@ def clean_titles(corpus):
     return corpus
 
 def compute_model_avg():
-ndgcs_path = f"./beir_embeddings_ndcgs.json"
-if os.path.exists(ndgcs_path):
-    with open(ndgcs_path, "r") as f:
-        ndcgs_json = json.load(f)
+    ndgcs_path = f"./beir_embeddings_ndcgs.json"
+    if os.path.exists(ndgcs_path):
+        with open(ndgcs_path, "r") as f:
+            ndcgs_json = json.load(f)
 
-subavg_datasets = ["trec-covid", "nfcorpus", "hotpotqa", "fiqa", "arguana", "webis-touche2020", 
-                    "quora", "dbpedia-entity", "fever", "climate-fever", "scifact"]
+    subsubavg_datasets = ["nfcorpus", "fiqa", "arguana", "scidocs", "scifact"]
 
-# Average does not include msmarco due to in-domain
-avg_datasets = ["nfcorpus", "bioasq", "nq", "hotpotqa", "fiqa", "signal1m", "trec-news", "arguana", "webis-touche2020", "quora", 
-                "dbpedia-entity", "scidocs", "fever", "climate-fever", "scifact", "robust04", "cqadupstack", "trec-covid"]
+    subavg_datasets = ["trec-covid", "nfcorpus", "hotpotqa", "fiqa", "arguana", "webis-touche2020", 
+                        "quora", "dbpedia-entity", "fever", "climate-fever", "scifact"]
 
-for model_name in ndcgs_json["ndcgs"]:
-    ndcgs_json["ndcgs"][model_name]["average"] = {}
-    ndcgs_json["ndcgs"][model_name]["subaverage"] = {}
-    model_datasets = [ds for ds in ndcgs_json["ndcgs"][model_name] if ds in avg_datasets]
-    for dataset in ndcgs_json["ndcgs"][model_name]:
-        if dataset not in model_datasets:
-            print(f"Skipping {dataset}")
-            continue
-        for k, v in ndcgs_json["ndcgs"][model_name][dataset].items():
-            ndcgs_json["ndcgs"][model_name]["average"].setdefault(k, 0)
-            ndcgs_json["ndcgs"][model_name]["average"][k] += v / len(model_datasets)
-            if all(sub_ds in model_datasets for sub_ds in subavg_datasets) and (dataset in subavg_datasets):
-                ndcgs_json["ndcgs"][model_name]["subaverage"].setdefault(k, 0)
-                ndcgs_json["ndcgs"][model_name]["subaverage"][k] += v / len(subavg_datasets)
+    # Average does not include msmarco due to in-domain
+    avg_datasets = ["nfcorpus", "bioasq", "nq", "hotpotqa", "fiqa", "signal1m", "trec-news", "arguana", "webis-touche2020", "quora", 
+                    "dbpedia-entity", "scidocs", "fever", "climate-fever", "scifact", "robust04", "cqadupstack", "trec-covid"]
 
-with open(ndgcs_path, "w") as f:
-    json.dump(ndcgs_json, f)
+    for model_name in ndcgs_json["ndcgs"]:
+        ndcgs_json["ndcgs"][model_name]["average"] = {}
+        ndcgs_json["ndcgs"][model_name]["subaverage"] = {}
+        ndcgs_json["ndcgs"][model_name]["subsubaverage"] = {}
+        model_datasets = [ds for ds in ndcgs_json["ndcgs"][model_name] if ds in avg_datasets]
+        for dataset in ndcgs_json["ndcgs"][model_name]:
+            if dataset not in model_datasets:
+                print(f"Skipping {dataset}")
+                continue
+            for k, v in ndcgs_json["ndcgs"][model_name][dataset].items():
+                ndcgs_json["ndcgs"][model_name]["average"].setdefault(k, 0)
+                ndcgs_json["ndcgs"][model_name]["average"][k] += v / len(model_datasets)
+                if all(sub_ds in model_datasets for sub_ds in subavg_datasets) and (dataset in subavg_datasets):
+                    ndcgs_json["ndcgs"][model_name]["subaverage"].setdefault(k, 0)
+                    ndcgs_json["ndcgs"][model_name]["subaverage"][k] += v / len(subavg_datasets)
+                if all(subsub_ds in model_datasets for subsub_ds in subsubavg_datasets) and (dataset in subsubavg_datasets):
+                    ndcgs_json["ndcgs"][model_name]["subsubaverage"].setdefault(k, 0)
+                    ndcgs_json["ndcgs"][model_name]["subsubaverage"][k] += v / len(subsubavg_datasets)
+
+    with open(ndgcs_path, "w") as f:
+        json.dump(ndcgs_json, f)
 
 def select_best_ckpt():
     """A bit hard-coded function for selecting the best checkpoints given results of many ckpts"""
