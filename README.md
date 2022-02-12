@@ -65,7 +65,7 @@ Each data sub-directory provides its own README with an overview of its **Struct
 
 ### Use SGPT with Huggingface
 
-Below we provide python examples to use the pretrained models for your own semantic search use case.
+Below we provide python examples to use the pre-trained models for your own semantic search use case.
 We highly recommend replacing the model names with larger models, e.g. `Muennighoff/SGPT-5.8B-weightedmean-nli-bitfit` for biencoder/symmetric. For small models, SBERT outperforms SGPT. See our paper for more information.
 
 #### Biencoder

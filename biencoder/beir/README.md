@@ -17,7 +17,7 @@ BEIR dataset: https://github.com/UKPLab/beir.
 
 #### Asymmetric Bi-Encoder results
 
-- https://www.kaggle.com/muennighoff/sgptbeasymbeir
+- https://www.kaggle.com/muennighoff/sgptbeasym (Does not include some json score files for 5.8B due to their large size (BioASQ, MSMARCO..))
 
 #### Symmetric Bi-Encoder results (mostly Quora)
 
