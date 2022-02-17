@@ -1,6 +1,6 @@
-## SGPT: Multi-billion parameter models for semantic search
+## SGPT: GPT Sentence Embeddings for Semantic Search
 
-This repository contains code, results and pre-trained models for the paper SGPT: Multi-billion parameter models for semantic search. - TODO: Link to arxiv
+This repository contains code, results and pre-trained models for the paper SGPT: GPT Sentence Embeddings for Semantic Search. - TODO: Link to arxiv
 
 **************************** Updates ****************************
 
@@ -16,7 +16,7 @@ This repository contains code, results and pre-trained models for the paper SGPT
 
 ### Overview
 
-We present SGPT-CE and SGPT-BE for applying large transformer decoders as Cross-Encoders or Bi-Encoders to symmetric or asymmetric search. SGPT-CE uses log-probability extraction of pre-trained models. SGPT-BE uses position-weighted mean pooling and contrastive fine-tuning of only bias tensors (BitFit).
+We present SGPT-CE and SGPT-BE for applying large transformer decoders as Cross-Encoders or Bi-Encoders to symmetric or asymmetric search. SGPT-CE uses log probability extraction of pre-trained models. SGPT-BE uses position-weighted mean pooling and contrastive fine-tuning of only bias tensors (BitFit).
 
 ![](other/sgpt_graphic.png)
 
@@ -66,7 +66,7 @@ Each data sub-directory provides its own README with an overview of its **Struct
 ### Use SGPT with Huggingface
 
 Below we provide python examples to use the pre-trained models for your own semantic search use case.
-We highly recommend replacing the model names with larger models, e.g. `Muennighoff/SGPT-5.8B-weightedmean-nli-bitfit` for biencoder/symmetric. For small models, SBERT outperforms SGPT. See our paper for more information.
+We highly recommend replacing the model names with larger models, e.g. `Muennighoff/SGPT-5.8B-weightedmean-nli-bitfit` for biencoder/symmetric.
 
 #### Biencoder
 
@@ -277,10 +277,8 @@ You can use the same code as in the above [CE-Asym section](#asymmetric-semantic
 
 ### Acknowledgements
 
-We thank XYZ for insightful discussions and valuable feedback throughout the project. 
-This work has been supported by OpenAI under the academic access program. 
+We thank Constantin Eichenberg and Samuel Weinbach for insightful discussions and valuable feedback throughout the project. We thank Robert Baldock, Marco Bellagente and Koen Oostermeijer for reading drafts of this paper. This work has been supported by OpenAI under the academic access program. 
 This work would not have been possible without:
-- XXX
 - UKPLab: [SBERT](https://github.com/UKPLab/sentence-transformers), [BEIR](https://github.com/UKPLab/beir), [USEB](https://github.com/UKPLab/useb)
 - [Eleuther AI Models](https://github.com/EleutherAI/gpt-neox)
 - [Huggingface Transformers](https://github.com/huggingface/transformers)
@@ -291,8 +289,8 @@ Feel free to cite our paper if SGPT is helpful to you :)
 
 ```bibtex
 @inproceedings{,
-   title={{SGPT}: Multi-billion parameter models for semantic search},
-   author={XXX},
+   title={{SGPT}: GPT Sentence Embeddings for Semantic Search},
+   author={Muennighoff, Niklas},
    year={2022}
 }
 ```
