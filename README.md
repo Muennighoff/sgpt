@@ -16,7 +16,7 @@ This repository contains code, results and pre-trained models for the paper SGPT
 
 ### Overview
 
-We present SGPT-CE and SGPT-BE for applying large transformer decoders as Cross-Encoders or Bi-Encoders to symmetric or asymmetric search. SGPT-CE uses log probability extraction of pre-trained models. SGPT-BE uses position-weighted mean pooling and contrastive fine-tuning of only bias tensors (BitFit).
+We present SGPT-BE and SGPT-CE for applying GPT models as Bi-Encoders or Cross-Encoders to symmetric or asymmetric search. SGPT-BE produces semantically meaningful sentence embeddings by contrastive fine-tuning of only bias tensors and position-weighted mean pooling. SGPT-CE uses log probabilities from GPT models without any fine-tuning. An illustration of the methods follows.
 
 ![](other/sgpt_graphic.png)
 
@@ -277,7 +277,7 @@ You can use the same code as in the above [CE-Asym section](#asymmetric-semantic
 
 ### Acknowledgements
 
-We thank Constantin Eichenberg and Samuel Weinbach for insightful discussions and valuable feedback throughout the project. We thank Robert Baldock, Marco Bellagente and Koen Oostermeijer for reading drafts of this paper. This work has been supported by OpenAI under the academic access program. 
+We thank Constantin Eichenberg and Samuel Weinbach for insightful discussions and valuable feedback throughout the project. We thank Robert Baldock, Marco Bellagente and Koen Oostermeijer for reading drafts of the paper. This work has been supported by OpenAI under the academic access program. 
 This work would not have been possible without:
 - UKPLab: [SBERT](https://github.com/UKPLab/sentence-transformers), [BEIR](https://github.com/UKPLab/beir), [USEB](https://github.com/UKPLab/useb)
 - [Eleuther AI Models](https://github.com/EleutherAI/gpt-neox)
