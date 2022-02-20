@@ -51,6 +51,7 @@ parser.add_argument("--wandbwatchlog", default="all", type=str) # Set e.g. to ju
 parser.add_argument("--learntmean", action="store_true")
 parser.add_argument("--no_training", action="store_true")
 parser.add_argument("--model_save_path", default=None, type=str)
+parser.add_argument("--gradcache", action="store_true")
 
 args = parser.parse_args()
 print(args)
@@ -161,7 +162,10 @@ train_dataloader = datasets.NoDuplicatesDataLoader(train_samples, batch_size=tra
 
 
 # Our training loss
-train_loss = losses.MultipleNegativesRankingLoss(model)
+if args.gradcache:
+    train_loss = losses.MNRLGradCache(model, chunk_size=1)
+else:
+    train_loss = losses.MultipleNegativesRankingLoss(model)
 
 
 #Read STSbenchmark dataset and use it as development set
@@ -195,7 +199,8 @@ if not args.no_training:
             output_path=model_save_path,
             use_amp=False,          #Set to True, if your GPU supports FP16 operations
             accelerator=accelerator,
-            log_wandb=args.wandb
+            log_wandb=args.wandb,
+            use_gradcache=args.gradcache
             )
 
 
