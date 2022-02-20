@@ -635,7 +635,8 @@ class SentenceTransformer(nn.Sequential):
             checkpoint_save_steps: int = 500,
             checkpoint_save_total_limit: int = 0,
             accelerator: Accelerator = None,
-            log_wandb = False
+            log_wandb = False,
+            use_gradcache=False
             ):
         """
         Train the model with the given training objective
@@ -702,7 +703,10 @@ class SentenceTransformer(nn.Sequential):
         dataloaders = [accelerator.prepare(dataloader) for dataloader in dataloaders]
 
         loss_models = [loss for _, loss in train_objectives]
-        loss_models = [accelerator.prepare(loss_model) for loss_model in loss_models]
+        if use_gradcache:
+            loss_models = [accelerator.prepare(loss_model.model) for loss_model in loss_models]
+        else:
+            loss_models = [accelerator.prepare(loss_model) for loss_model in loss_models]
         # for loss_model in loss_models:
         #     loss_model.to(self._target_device)
 
@@ -717,7 +721,10 @@ class SentenceTransformer(nn.Sequential):
         optimizers = []
         schedulers = []
         for loss_model in loss_models:
-            param_optimizer = list(loss_model.named_parameters())
+            if use_gradcache:
+                param_optimizer = list(loss_model.model.named_parameters())
+            else:
+                param_optimizer = list(loss_model.named_parameters())
 
             no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
             optimizer_grouped_parameters = [
@@ -744,8 +751,12 @@ class SentenceTransformer(nn.Sequential):
             training_steps = 0
 
             for loss_model in loss_models:
-                loss_model.zero_grad()
-                loss_model.train()
+                if use_gradcache:
+                    loss_model.model.zero_grad()
+                    loss_model.model.train()
+                else:
+                    loss_model.zero_grad()
+                    loss_model.train()
 
             for _ in trange(steps_per_epoch * gradient_accumulation, desc="Iteration", smoothing=0.05, disable=not show_progress_bar):
                 for train_idx in range(num_train_objectives):
@@ -771,7 +782,10 @@ class SentenceTransformer(nn.Sequential):
                         accelerator.backward(scaler.scale(loss_value))
                         training_steps += 1
                         scaler.unscale_(optimizer)
-                        torch.nn.utils.clip_grad_norm_(loss_model.parameters(), max_grad_norm)
+                        if use_gradcache:
+                            torch.nn.utils.clip_grad_norm_(loss_model.model.parameters(), max_grad_norm)
+                        else:
+                            torch.nn.utils.clip_grad_norm_(loss_model.parameters(), max_grad_norm)
 
                         if training_steps % gradient_accumulation == 0:
                             scaler.step(optimizer)
@@ -783,8 +797,12 @@ class SentenceTransformer(nn.Sequential):
                             global_step += 1
                     else:
                         loss_value = loss_model(features, labels)
-                        accelerator.backward(loss_value)
-                        torch.nn.utils.clip_grad_norm_(loss_model.parameters(), max_grad_norm)
+                        if use_gradcache is False:
+                            accelerator.backward(loss_value)
+                        if use_gradcache:
+                            torch.nn.utils.clip_grad_norm_(loss_model.model.parameters(), max_grad_norm)
+                        else:
+                            torch.nn.utils.clip_grad_norm_(loss_model.parameters(), max_grad_norm)
                         if training_steps % gradient_accumulation == 0:
                             optimizer.step()
                             optimizer.zero_grad()
@@ -801,8 +819,12 @@ class SentenceTransformer(nn.Sequential):
                                                main_process=accelerator.is_main_process)
 
                     for loss_model in loss_models:
-                        loss_model.zero_grad()
-                        loss_model.train()
+                        if use_gradcache:
+                            loss_model.model.zero_grad()
+                            loss_model.model.train()
+                        else:
+                            loss_model.zero_grad()
+                            loss_model.train()
 
                 if checkpoint_path is not None and checkpoint_save_steps is not None and checkpoint_save_steps > 0 \
                         and global_step % checkpoint_save_steps == 0 and accelerator.is_main_process:

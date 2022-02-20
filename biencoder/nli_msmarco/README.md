@@ -93,28 +93,28 @@ accelerate config
 accelerate launch --main_process_port 1469 examples/training/nli/training_nli_v2.py --model_name EleutherAI/gpt-neo-1.3B --train_batch_size 6 --lr 1e-5 --pooling weightedmean
 ```
 
-Training of `SGPT-125M-mean-nli-linear5` on 4 GPUs:
+Training of `SGPT-125M-mean-nli-linear5` on 4 40GiB GPUs:
 
 ```bash
 accelerate config
 accelerate launch examples/training/nli/training_nli_v2.py --model_name EleutherAI/gpt-neo-125M --freeze --addxlinear 5 --wandb --useact
 ```
 
-Training of `SGPT-125M-mean-nli-linearthenpool5` on 4 GPUs:
+Training of `SGPT-125M-mean-nli-linearthenpool5` on 4 40GiB GPUs:
 
 ```bash
 accelerate config
 accelerate launch examples/training/nli/training_nli_v2.py --model_name EleutherAI/gpt-neo-125M --freeze --addxlinear 5 --linearthenpool --wandb --useact
 ```
 
-Training of `SGPT-125M-weightedmean-nli-linearthenpool5` on 4 GPUs:
+Training of `SGPT-125M-weightedmean-nli-linearthenpool5` on 4 40GiB GPUs:
 
 ```bash
 accelerate config
 accelerate launch examples/training/nli/training_nli_v2.py --model_name EleutherAI/gpt-neo-125M --freeze --addxlinear 5 --linearthenpool --wandb --pooling weightedmean --useact
 ```
 
-Training of `SGPT-1.3B-mean-nli-linearthenpool5` on 4 GPUs:
+Training of `SGPT-1.3B-mean-nli-linearthenpool5` on 4 40GiB GPUs:
 
 ```bash
 cd sentence-transformers

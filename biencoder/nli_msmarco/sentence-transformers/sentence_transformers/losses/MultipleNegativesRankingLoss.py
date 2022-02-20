@@ -81,3 +81,65 @@ class MultipleNegativesRankingLoss(nn.Module):
 
     def get_config_dict(self):
         return {'scale': self.scale, 'similarity_fct': self.similarity_fct.__name__}
+
+
+import GradCache
+
+class MNRLGradCache(GradCache):
+    """
+    If you use mixed precision / DeepSpeed in accelerator,
+    should overwrite build_cache & forward_backward funcs to place in accelerator.backward(loss)
+    """
+
+    def __init__(self, model: SentenceTransformer, scale: float = 20.0, similarity_fct = util.cos_sim, chunk_size = 1):
+        """
+        chunk_size: Final batch size bottlenecking memory, i.e. set the batch size to the actual batch size you want,
+            then set chunk_size to be so small that it works
+        """
+        self.model = model
+        self.scale = scale
+        self.similarity_fct = similarity_fct
+        self.cross_entropy_loss = nn.CrossEntropyLoss()
+
+        # Three times the same model for three model inputs:
+        # entail_a (pos), entail_b (pos), contradict (hard negative)
+        # No support for asym models
+        super().__init__(  
+            models=[self.model, self.model, self.model],
+            chunk_sizes=chunk_size,  
+            loss_fn=self.loss_fn,
+            split_input_fn=None,  # Should be able to handle dict of tensors
+            get_rep_fn=lambda v: v["sentence_embedding"],  
+            fp16=False,
+            scaler=None,
+        )
+
+    def loss_fn(self, embeddings_a, embeddings_b, embeddings_n=None):
+        if torch.distributed.is_initialized():
+            if embeddings_n is not None:
+                embeddings_n = torch.cat([embeddings_n])
+            else:
+                embeddings_n = embeddings_b[:0, :]
+            full_embeddings_b = mismatched_sizes_all_gather(embeddings_b)
+            full_embeddings_b = torch.cat(full_embeddings_b)
+            full_embeddings_n = mismatched_sizes_all_gather(embeddings_n)
+            full_embeddings_n = torch.cat(full_embeddings_n)
+            candidates = torch.cat([full_embeddings_b, full_embeddings_n])
+
+            scores = self.similarity_fct(embeddings_a, candidates) * self.scale
+            labels = torch.tensor(range(len(scores)), dtype=torch.long, device=scores.device)\
+                        + len(scores) * torch.distributed.get_rank()
+            return self.cross_entropy_loss(scores, labels)
+
+        else:
+            if embeddings_n is not None:
+                candidates = torch.cat([embeddings_b, embeddings_n])
+            else:
+                candidates = torch.cat([embeddings_b])
+            scores = self.similarity_fct(embeddings_a, candidates) * self.scale
+            labels = torch.tensor(range(len(scores)), dtype=torch.long,
+                                    device=scores.device)  # Example a[i] should match with b[i]
+            return self.cross_entropy_loss(scores, labels)
+    
+    def __call__(self, sentence_features: Iterable[Dict[str, Tensor]], labels: Tensor):
+        return super().__call__(*sentence_features, no_sync_except_last=True)
