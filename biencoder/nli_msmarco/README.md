@@ -17,8 +17,8 @@ Below are all commands used for all models trained in the paper and available at
 
 #### Requirements
 
-Install accelerator.
-Installed via source install at commit `29a09a8ddc1e19f6dd544e709dd865b9dbfcb709`
+Install accelerator:
+Installed via source install at commit `29a09a8ddc1e19f6dd544e709dd865b9dbfcb709`:
 `pip install git+https://github.com/huggingface/accelerate`.
 A later version should also work.
 
@@ -34,6 +34,18 @@ Do you wish to use FP16 (mixed precision)? [yes/NO]:
 
 Install sentence-transformers from source from the `sentence-transformers` folder:
 `cd sentence-transformers; pip install -e .`
+
+Install wandb if you would like to use it:
+`pip install wandb`
+
+In a conda env this might look like:
+```bash
+conda create —-name sgpt
+conda install pytorch torchvision cudatoolkit=11.3 -c pytorch
+~/conda/envs/sgpt/bin/pip install git+https://github.com/huggingface/accelerate
+~/conda/envs/sgpt/bin/pip install -e . 
+conda install -c conda-forge wandb
+```
 
 #### Biencoder on NLI - "Symmetric Semantic Search" (Training + Inference)
 

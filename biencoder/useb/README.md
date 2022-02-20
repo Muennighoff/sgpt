@@ -21,6 +21,24 @@ OOD Unsupervised + OOD Supervised results: https://www.kaggle.com/muennighoff/us
 
 ### Commands
 
+#### Requirements
+
+Pip:
+```bash
+python -m useb/useb.downloading all
+pip install pytrec_eval
+cd ../nli_msmarco/sentence-transformers; pip install -e .
+```
+
+Conda:
+```bash
+python -m useb/useb.downloading all
+~/conda/envs/sgpt/bin/pip install pytrec_eval
+cd ../nli_msmarco/sentence-transformers; ~/conda/envs/sgpt/bin/pip install -e . 
+```
+
+#### USEB Inference
+
 Below are the commands used for all models trained in the paper and available at https://huggingface.co/Muennighoff. Before running, make sure to download the datasets following instructions in `sgpt/biencoder/useb/useb/README.md`.
 
 To run & compare all layers:

@@ -48,8 +48,8 @@ def run(
     results = {}
     results_main_metric = {}
     for semb_fn, evaluator_class in zip(
-        [semb_fn_scidocs, semb_fn_askubuntu, semb_fn_cqadupstack, semb_fn_twitterpara], 
-        [SciDocsEvaluator, AskubuntuEvaluator, CQADupStackEvaluator, TwitterParaEvaluator]
+        [semb_fn_askubuntu, semb_fn_cqadupstack, semb_fn_twitterpara, semb_fn_scidocs],
+        [AskubuntuEvaluator, CQADupStackEvaluator, TwitterParaEvaluator, SciDocsEvaluator]
     ):
         evaluator = evaluator_class(semb_fn, os.path.join(data_eval_path, evaluator_class.name))
         result = evaluator.run(eval_type, normalize=normalize)
