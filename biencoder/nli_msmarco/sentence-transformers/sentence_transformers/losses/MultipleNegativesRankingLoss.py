@@ -83,7 +83,7 @@ class MultipleNegativesRankingLoss(nn.Module):
         return {'scale': self.scale, 'similarity_fct': self.similarity_fct.__name__}
 
 
-import GradCache
+from grad_cache import GradCache
 
 class MNRLGradCache(GradCache):
     """
