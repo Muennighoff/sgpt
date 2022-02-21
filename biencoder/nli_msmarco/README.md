@@ -22,7 +22,7 @@ Installed via source install at commit `29a09a8ddc1e19f6dd544e709dd865b9dbfcb709
 `pip install git+https://github.com/huggingface/accelerate`.
 A later version should also work.
 
-Configuration:
+Configuration (will show up after `accelerate config`):
 ```
 In which compute environment are you running? ([0] This machine, [1] AWS (Amazon SageMaker)): 0
 Which type of machine are you using? ([0] No distributed training, [1] multi-CPU, [2] multi-GPU, [3] TPU): 2
