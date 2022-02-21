@@ -52,6 +52,7 @@ parser.add_argument("--learntmean", action="store_true")
 parser.add_argument("--no_training", action="store_true")
 parser.add_argument("--model_save_path", default=None, type=str)
 parser.add_argument("--gradcache", action="store_true")
+parser.add_argument("--chunksize",  default=1, type=int, help="Chunks to use for gradcache")
 
 args = parser.parse_args()
 print(args)
