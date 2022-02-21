@@ -82,7 +82,7 @@ class MultipleNegativesRankingLoss(nn.Module):
     def get_config_dict(self):
         return {'scale': self.scale, 'similarity_fct': self.similarity_fct.__name__}
 
-
+from collections import UserDict
 from grad_cache import GradCache
 
 class MNRLGradCache(GradCache):
@@ -144,3 +144,11 @@ class MNRLGradCache(GradCache):
     def __call__(self, sentence_features: Iterable[Dict[str, Tensor]], labels: Tensor):
         no_sync_except_last = True if torch.distributed.is_initialized() else False
         return super().__call__(*sentence_features, no_sync_except_last=no_sync_except_last)
+
+    def model_call(self, model: nn.Module, model_input):
+        """
+        Overwrite GradCache model_call method, as we require non-extracted dict as model input
+        """
+        assert isinstance(model_input, (dict, UserDict)), f"Got type {type(model_input)}, but expected Dict."
+        return model(model_input)
+
