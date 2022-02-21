@@ -40,7 +40,7 @@ Install wandb if you would like to use it:
 
 In a conda env this might look like:
 ```bash
-conda create —-name sgpt
+conda create --name sgpt
 conda install pytorch torchvision cudatoolkit=11.3 -c pytorch
 ~/conda/envs/sgpt/bin/pip install git+https://github.com/huggingface/accelerate
 ~/conda/envs/sgpt/bin/pip install -e . 
