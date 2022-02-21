@@ -164,7 +164,7 @@ train_dataloader = datasets.NoDuplicatesDataLoader(train_samples, batch_size=tra
 
 # Our training loss
 if args.gradcache:
-    train_loss = losses.MNRLGradCache(model, chunk_size=1)
+    train_loss = losses.MNRLGradCache(model, chunk_size=args.chunksize)
 else:
     train_loss = losses.MultipleNegativesRankingLoss(model)
 
@@ -201,7 +201,8 @@ if not args.no_training:
             use_amp=False,          #Set to True, if your GPU supports FP16 operations
             accelerator=accelerator,
             log_wandb=args.wandb,
-            use_gradcache=args.gradcache
+            use_gradcache=args.gradcache,
+            chunk_size=args.chunksize
             )
 
 

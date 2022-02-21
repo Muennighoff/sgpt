@@ -636,7 +636,8 @@ class SentenceTransformer(nn.Sequential):
             checkpoint_save_total_limit: int = 0,
             accelerator: Accelerator = None,
             log_wandb = False,
-            use_gradcache=False
+            use_gradcache=False,
+            chunk_size=1
             ):
         """
         Train the model with the given training objective
@@ -705,9 +706,7 @@ class SentenceTransformer(nn.Sequential):
         loss_models = [loss for _, loss in train_objectives]
         if use_gradcache:
             # Reinitialize the class with the new model to have the updated model in GradCache
-            loss_models = [loss_model.__class__(accelerator.prepare(loss_model.model)) for loss_model in loss_models]
-            #for loss_model in loss_models:
-            #    loss_model = loss_model.__class__(accelerator.prepare(loss_model.model))
+            loss_models = [loss_model.__class__(accelerator.prepare(loss_model.model), chunk_size=chunk_size) for loss_model in loss_models]
         else:
             loss_models = [accelerator.prepare(loss_model) for loss_model in loss_models]
         # for loss_model in loss_models:
