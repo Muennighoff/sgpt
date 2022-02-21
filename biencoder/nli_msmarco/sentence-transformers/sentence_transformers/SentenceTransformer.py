@@ -704,7 +704,8 @@ class SentenceTransformer(nn.Sequential):
 
         loss_models = [loss for _, loss in train_objectives]
         if use_gradcache:
-            loss_models = [accelerator.prepare(loss_model.model) for loss_model in loss_models]
+            for loss_model in loss_models:
+                loss_model.model = accelerator.prepare(loss_model.model)
         else:
             loss_models = [accelerator.prepare(loss_model) for loss_model in loss_models]
         # for loss_model in loss_models:
