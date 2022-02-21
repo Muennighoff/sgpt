@@ -142,4 +142,5 @@ class MNRLGradCache(GradCache):
             return self.cross_entropy_loss(scores, labels)
     
     def __call__(self, sentence_features: Iterable[Dict[str, Tensor]], labels: Tensor):
-        return super().__call__(*sentence_features, no_sync_except_last=True)
+        no_sync_except_last = True if torch.distributed.is_initialized() else False
+        return super().__call__(*sentence_features, no_sync_except_last=no_sync_except_last)
