@@ -4,6 +4,8 @@ This repository contains code, results and pre-trained models for the paper [SGP
 
 **************************** Updates ****************************
 
+* 2/21: We released [our paper](https://arxiv.org/abs/2202.08904). Check it out! :)
+
 ### Quick Links
 
   - [Overview](#overview)
