@@ -267,7 +267,7 @@ for query in queries:
         # Gather the log probabilities of the continuation tokens -> [continuation_len]
         logprobs = torch.gather(logprobs, 1, torch.tensor(continuation_enc).unsqueeze(-1)).squeeze(-1)
         score = torch.sum(logprobs)
-        # The higher (closer to 0), the better
+        # The higher (closer to 0), the more similar
         print(f"Document: {doc[:20] + '...'} Score: {score}")
 ```
 
