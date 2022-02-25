@@ -75,6 +75,8 @@ parser.add_argument("--local_rank", type=int, default=-1)
 parser.add_argument("--freeze", action="store_true", help="Freeze transformer")
 parser.add_argument("--freezenonbias", action="store_true", help="Freeze all except biases in transformer")
 parser.add_argument("--unfreezewte", action="store_true", help="Unfreeze Word Token Embeddings")
+parser.add_argument("--gradcache", action="store_true")
+parser.add_argument("--chunksize",  default=1, type=int, help="Chunks to use for gradcache")
 args = parser.parse_args()
 print(args)
 
@@ -367,7 +369,10 @@ if not args.no_training:
     # For training the SentenceTransformer model, we need a dataset, a dataloader, and a loss used for training.
     train_dataset = MSMARCODataset(train_queries, corpus=corpus, asym=args.asym)
     train_dataloader = DataLoader(train_dataset, shuffle=True, batch_size=train_batch_size)
-    train_loss = losses.MultipleNegativesRankingLoss(model=model)
+    if args.gradcache:
+        train_loss = losses.MNRLGradCache(model, chunk_size=args.chunksize)
+    else:
+        train_loss = losses.MultipleNegativesRankingLoss(model)
 
     if args.wandb and accelerator.is_main_process:
         wandb.watch(model, log=args.wandbwatchlog, criterion=train_loss, log_freq=100)
@@ -388,7 +393,9 @@ if not args.no_training:
               show_progress_bar=True,
               steps_per_epoch=args.steps_per_epoch,
               accelerator=accelerator,
-              log_wandb=args.wandb
+              log_wandb=args.wandb,
+              use_gradcache=args.gradcache,
+              chunk_size=args.chunksize,
               )
 
     # Save the model
