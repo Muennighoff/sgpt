@@ -140,8 +140,12 @@ Training of `SGPT-5.8B-weightedmean-nli-bitfit` on 8 40GiB GPUs:
 
 ```bash
 accelerate config
-accelerate launch examples/training/nli/training_nli_v2.py --model_name EleutherAI/gpt-j-6B --freezenonbias --train_batch_size 6 --lr 1e-4 --pooling weightedmean --wandb --wandbwatchlog gradients
+cd sentence-transformers
+accelerate config
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 accelerate launch examples/training/nli/training_nli_v2.py --model_name EleutherAI/gpt-j-6B --freezenonbias --train_batch_size 128 --lr 32e-5 --pooling weightedmean --wandb --wandbwatchlog gradients --gradcache --chunksize 4
 ```
+
+This model uses GradCache, a technique for gradient accumulation with contrastive learning. Its total batch size is 128 * 8 = 1024. It's memory consumption is equivalent to using a batch size of 4 (chunksize). 
 
 
 #### Biencoder on MSMARCO - "Asymmetric Semantic Search" (Training + Inference)
