@@ -1,8 +1,10 @@
 ## SGPT: GPT Sentence Embeddings for Semantic Search
 
-This repository contains code, results and pre-trained models for the paper SGPT: GPT Sentence Embeddings for Semantic Search. - TODO: Link to arxiv
+This repository contains code, results and pre-trained models for the paper [SGPT: GPT Sentence Embeddings for Semantic Search](https://arxiv.org/abs/2202.08904).
 
 **************************** Updates ****************************
+
+* 2/21: We released [our paper](https://arxiv.org/abs/2202.08904). Check it out! :)
 
 ### Quick Links
 
@@ -267,7 +269,7 @@ for query in queries:
         # Gather the log probabilities of the continuation tokens -> [continuation_len]
         logprobs = torch.gather(logprobs, 1, torch.tensor(continuation_enc).unsqueeze(-1)).squeeze(-1)
         score = torch.sum(logprobs)
-        # The higher (closer to 0), the better
+        # The higher (closer to 0), the more similar
         print(f"Document: {doc[:20] + '...'} Score: {score}")
 ```
 
@@ -288,9 +290,10 @@ This work would not have been possible without:
 Feel free to cite our paper if SGPT is helpful to you :) 
 
 ```bibtex
-@inproceedings{,
-   title={{SGPT}: GPT Sentence Embeddings for Semantic Search},
-   author={Muennighoff, Niklas},
-   year={2022}
+@article{muennighoff2022sgpt,
+  title={SGPT: GPT Sentence Embeddings for Semantic Search},
+  author={Muennighoff, Niklas},
+  journal={arXiv preprint arXiv:2202.08904},
+  year={2022}
 }
 ```
