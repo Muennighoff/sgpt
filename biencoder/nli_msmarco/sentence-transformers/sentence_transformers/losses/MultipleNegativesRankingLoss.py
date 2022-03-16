@@ -81,3 +81,81 @@ class MultipleNegativesRankingLoss(nn.Module):
 
     def get_config_dict(self):
         return {'scale': self.scale, 'similarity_fct': self.similarity_fct.__name__}
+
+from collections import UserDict
+from grad_cache import GradCache
+
+class MNRLGradCache(GradCache):
+    """
+    If you use mixed precision / DeepSpeed in accelerator,
+    should overwrite build_cache & forward_backward funcs to place in accelerator.backward(loss)
+    """
+
+    def __init__(self, model: SentenceTransformer, scale: float = 20.0, similarity_fct = util.cos_sim, chunk_size = 1):
+        """
+        chunk_size: Final batch size bottlenecking memory, i.e. set the batch size to the actual batch size you want,
+            then set chunk_size to be so small that it works
+        """
+        self.model = model
+        self.scale = scale
+        self.similarity_fct = similarity_fct
+        self.cross_entropy_loss = nn.CrossEntropyLoss()
+
+        # Three times the same model for three model inputs:
+        # entail_a (pos), entail_b (pos), contradict (hard negative)
+        # No support for asym models
+        super().__init__(  
+            models=[self.model, self.model, self.model],
+            chunk_sizes=chunk_size,  
+            loss_fn=self.loss_fn,
+            split_input_fn=None,  # Should be able to handle dict of tensors
+            get_rep_fn=lambda v: v["sentence_embedding"],  
+            fp16=False,
+            scaler=None,
+        )
+
+    def loss_fn(self, embeddings_a, embeddings_b, embeddings_n=None):
+        if torch.distributed.is_initialized():
+            if embeddings_n is not None:
+                embeddings_n = torch.cat([embeddings_n])
+            else:
+                embeddings_n = embeddings_b[:0, :]
+            full_embeddings_b = mismatched_sizes_all_gather(embeddings_b)
+            full_embeddings_b = torch.cat(full_embeddings_b)
+            full_embeddings_n = mismatched_sizes_all_gather(embeddings_n)
+            full_embeddings_n = torch.cat(full_embeddings_n)
+            candidates = torch.cat([full_embeddings_b, full_embeddings_n])
+
+            scores = self.similarity_fct(embeddings_a, candidates) * self.scale
+            # Because we do not gather embeddings_a (i.e. we only have part of them)
+            # we need to move the labels to the corresponding part of embeddings_a we have
+            # i.e. on rank 0, it the first len(scores); on rank 1 it's the second len(scores),
+            # so we add len(scores) * 1
+            labels = torch.tensor(range(len(scores)), dtype=torch.long, device=scores.device)\
+                        + len(scores) * torch.distributed.get_rank()
+            return self.cross_entropy_loss(scores, labels)
+
+        else:
+            if embeddings_n is not None:
+                candidates = torch.cat([embeddings_b, embeddings_n])
+            else:
+                candidates = torch.cat([embeddings_b])
+            scores = self.similarity_fct(embeddings_a, candidates) * self.scale
+            labels = torch.tensor(range(len(scores)), dtype=torch.long,
+                                    device=scores.device)  # Example a[i] should match with b[i]
+            return self.cross_entropy_loss(scores, labels)
+    
+    def __call__(self, sentence_features: Iterable[Dict[str, Tensor]], labels: Tensor):
+        # e.g. for NLI, sentence_features is [emb_a, emb_b, emb_n], where
+        # emb_a & emb_b have an entailment relation; emb_n is a contradiction
+        # Note that each of those is a batch consisting of multiple emb_a's
+        no_sync_except_last = True if torch.distributed.is_initialized() else False
+        return super().__call__(*sentence_features, no_sync_except_last=no_sync_except_last)
+
+    def model_call(self, model: nn.Module, model_input):
+        """
+        Overwrite GradCache model_call method, as we require non-extracted dict as model input
+        """
+        assert isinstance(model_input, (dict, UserDict)), f"Got type {type(model_input)}, but expected Dict."
+        return model(model_input)
+
