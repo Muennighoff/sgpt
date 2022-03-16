@@ -127,6 +127,10 @@ class MNRLGradCache(GradCache):
             candidates = torch.cat([full_embeddings_b, full_embeddings_n])
 
             scores = self.similarity_fct(embeddings_a, candidates) * self.scale
+            # Because we do not gather embeddings_a (i.e. we only have part of them)
+            # we need to move the labels to the corresponding part of embeddings_a we have
+            # i.e. on rank 0, it the first len(scores); on rank 1 it's the second len(scores),
+            # so we add len(scores) * 1
             labels = torch.tensor(range(len(scores)), dtype=torch.long, device=scores.device)\
                         + len(scores) * torch.distributed.get_rank()
             return self.cross_entropy_loss(scores, labels)
@@ -142,6 +146,9 @@ class MNRLGradCache(GradCache):
             return self.cross_entropy_loss(scores, labels)
     
     def __call__(self, sentence_features: Iterable[Dict[str, Tensor]], labels: Tensor):
+        # e.g. for NLI, sentence_features is [emb_a, emb_b, emb_n], where
+        # emb_a & emb_b have an entailment relation; emb_n is a contradiction
+        # Note that each of those is a batch consisting of multiple emb_a's
         no_sync_except_last = True if torch.distributed.is_initialized() else False
         return super().__call__(*sentence_features, no_sync_except_last=no_sync_except_last)
 

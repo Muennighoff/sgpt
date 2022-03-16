@@ -705,12 +705,10 @@ class SentenceTransformer(nn.Sequential):
 
         loss_models = [loss for _, loss in train_objectives]
         if use_gradcache:
-            # Reinitialize the class with the new model to have the updated model in GradCache
+            # Reinitialize the class with the new model to grab the updated model in the super function in MNRLGradCache
             loss_models = [loss_model.__class__(accelerator.prepare(loss_model.model), chunk_size=chunk_size) for loss_model in loss_models]
         else:
             loss_models = [accelerator.prepare(loss_model) for loss_model in loss_models]
-        # for loss_model in loss_models:
-        #     loss_model.to(self._target_device)
 
         self.best_score = -9999999
 
@@ -777,6 +775,8 @@ class SentenceTransformer(nn.Sequential):
                     features, labels = data
 
                     if use_amp:
+                        if use_gradcache:
+                            raise ValueError("Amp is not yet compatible with GradCache, see MNRLGradCache docstring")
                         with autocast():
                             loss_value = loss_model(features, labels)
 
@@ -799,6 +799,7 @@ class SentenceTransformer(nn.Sequential):
                             global_step += 1
                     else:
                         loss_value = loss_model(features, labels)
+                        # Backward pass is automatically applied in GradCache
                         if use_gradcache is False:
                             accelerator.backward(loss_value)
                         if use_gradcache:

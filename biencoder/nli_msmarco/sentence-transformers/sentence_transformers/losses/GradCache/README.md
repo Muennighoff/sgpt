@@ -1,6 +1,7 @@
+# Preface (Muennighoff)
 
-
-
+Copied at commit `9458d05f6ed36acf0290bcc6886028bb71ea2d71` from https://github.com/luyug/GradCache.
+Below follows the original README.
 
 # Gradient Cache
 Gradient Cache is a simple technique for unlimitedly scaling contrastive learning batch far beyond GPU/TPU memory constraint. This means training that used to take heavy hardware, e.g. 8 V100 GPU, can be done on a single GPU. In addition, Gradient Cache allow users to replace big RAM GPU/TPU with much more cost efficient high FLOP low RAM systems.
