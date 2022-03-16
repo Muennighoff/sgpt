@@ -4,7 +4,7 @@ This repository contains code, results and pre-trained models for the paper [SGP
 
 **************************** Updates ****************************
 
-* 03/16: 5.8B Bi-Encoder models are now 4% & 1% better on USEB & BEIR, respectively. Paper & models on HF have been updated. This has been done by using larger batch sizes with GradCache, see the paper for more info. If you have previously downloaded them, we recommend replacing it with the new version.
+* 03/16: 5.8B Bi-Encoder models are now 4% & 1% better on USEB & BEIR, respectively. [Paper](https://arxiv.org/abs/2202.08904) & [models](https://huggingface.co/models?search=sgpt-5.8b) on HF have been updated. This has been done by using larger batch sizes with GradCache, see the paper for more info. If you have previously downloaded them, we recommend replacing it with the new version.
 * 02/21: We released [our paper](https://arxiv.org/abs/2202.08904). Check it out! :)
 
 ### Quick Links
