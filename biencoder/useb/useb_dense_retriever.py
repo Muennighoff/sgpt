@@ -51,6 +51,13 @@ def parse_args():
         const=True,
         help="Use OpenAI's embedding API - Make sure to modify the API_KEY variable",
     )
+    parser.add_argument(
+        "--aa",
+        action="store_const",
+        default=False,
+        const=True,
+        help="Use AA's models",
+    )
     args = parser.parse_args()
     return args
 
@@ -317,6 +324,44 @@ class STGPTWrapper:
     def encode(self, *args, **kwargs):
         return self.model.encode(*args, **kwargs)
 
+
+class AAWrapper(CustomEmbedder):
+    def __init__(
+        self,
+        model_name="EleutherAI/gpt-neo-1.3B",
+        batch_size=500,
+        device="cuda:0",
+        save_emb=False,
+        reinit=False,
+        layeridx=-1,
+        **kwargs,
+    ):
+        from transformer import TransformerModel
+        from transformers import PreTrainedTokenizerFast
+
+        self.device = torch.device(device)
+        self.model_name = model_name
+        
+        self.model = TransformerModel.from_checkpoint(model_name, device=device, for_inference=True, config_overwrite={"dataset_kind": "text"}, **kwargs)
+        if reinit:
+            logging.warn("Reiniting all model weights")
+            self.model.init_weights()
+        self.model.eval()
+        self.max_token_len = self.model.config.max_position_embeddings
+        tokenizer_name = ""
+        self.tokenizer = PreTrainedTokenizerFast(tokenizer_file=str(tokenizer_name), model_max_length=self.model.config.max_position_embeddings)
+        
+        # gpt models do not have a padding token by default - Add one and ignore it with the attn mask lateron
+        self.tokenizer.pad_token = "<|endoftext|>"
+
+        self.batch_size = batch_size
+        self.save_emb = save_emb
+        self.layeridx = layeridx
+
+        self.base_path = f"embeddings/{model_name.split('/')[-1]}/"
+        pathlib.Path(self.base_path).mkdir(parents=True, exist_ok=True)
+
+
 API_KEY = "YOUR_KEY"
 
 class OpenAIEmbedder:
@@ -411,6 +456,13 @@ def main(args):
         model = STGPTWrapper(model_name, device=device)
     elif args.openai:
         model = OpenAIEmbedder(engine=model_name)
+    elif args.aa:
+        model = AAWrapper(
+            model_name,
+            device=device,
+            layeridx=layeridx,
+            reinit=reinit,
+        )
     else:
         model = CustomEmbedder(
             model_name,
