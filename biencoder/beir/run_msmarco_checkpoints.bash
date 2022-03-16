@@ -5,7 +5,7 @@ device=${2:-cuda:0}
 
 ### Define your checkpoints, several examples follow ###
 # GPT125 CKPTS
-#declare -a arr=("15600" "31200" "46800" "62400" "78000")
+declare -a arr=("15600" "31200" "46800" "62400" "78000")
 # GPT1.3 CKPTS
 #declare -a arr=("62398" "78000")
 # GPT2.7 CKPTS
@@ -26,13 +26,6 @@ device=${2:-cuda:0}
 #                "162227"  "199664"  "224622"     
 #                "249580"  "287017"  "311990"  
 #                "62395"  "99832")
-# GPT-5.8B CKPTS - BS: 1024
-#declare -a arr=("1461"  "2922"  "3896"  
-#                "487"  "4880"  "1948"  
-#                "2435"  "3409" "4383"   
-#                "4870"  "974")
-# GPT-5.8B CKPTS - BS: 64
-declare -a arr=("15598"  "23397"  "31196"  "38995"  "46794"  "7799")
 
 ## now loop through the above array
 for i in "${arr[@]}"
