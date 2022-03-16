@@ -262,7 +262,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 accelerate launch --main_process_port 2222 
 ```
 
 
-Training of `SGPT-5.8B-weightedmean-msmarco-specb-bitfit-bs48` on 8 40GiB GPUs:
+Training of `SGPT-5.8B-weightedmean-msmarco-specb-bitfit-bs16` on 8 40GiB GPUs:
 
 ```bash
 accelerate config
