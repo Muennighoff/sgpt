@@ -19,6 +19,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--method", type=str, default="mean", help="Method to use.")
     parser.add_argument("--modelname", type=str, default="bert-base-uncased", help="Model to use.")
+    parser.add_argument("--tokenizername", type=str, default="/data/checkpoints/aa-alpha-001-128k-multilingual-data-alpha-1_large_new_codebase_bs512/global_step170000/configs/alpha-001-128k.json", help="Tokenizer to use.")
     # Won't make a difference for inference, as inference is deterministic
     parser.add_argument("--seed", type=int, default=42, help="Seed to use.")
     parser.add_argument("--device", type=str, default="cuda:0", help="Device to use.")
@@ -328,7 +329,8 @@ class STGPTWrapper:
 class AAWrapper(CustomEmbedder):
     def __init__(
         self,
-        model_name="EleutherAI/gpt-neo-1.3B",
+        model_name,
+        tokenizer_name,
         batch_size=500,
         device="cuda:0",
         save_emb=False,
@@ -348,7 +350,6 @@ class AAWrapper(CustomEmbedder):
             self.model.init_weights()
         self.model.eval()
         self.max_token_len = self.model.config.max_position_embeddings
-        tokenizer_name = ""
         self.tokenizer = PreTrainedTokenizerFast(tokenizer_file=str(tokenizer_name), model_max_length=self.model.config.max_position_embeddings)
         
         # gpt models do not have a padding token by default - Add one and ignore it with the attn mask lateron
@@ -365,9 +366,6 @@ class AAWrapper(CustomEmbedder):
 API_KEY = "YOUR_KEY"
 
 class OpenAIEmbedder:
-    """
-    
-    """
     def __init__(self, engine, batch_size=250, **kwargs):
 
         self.engine = engine
@@ -427,6 +425,7 @@ class OpenAIEmbedder:
 def main(args):
     method = args.method
     model_name = args.modelname
+    tokenizer_name = args.tokenizername
     device = args.device
     layeridx = args.layeridx
     notnormalize = args.notnormalize
@@ -459,6 +458,7 @@ def main(args):
     elif args.aa:
         model = AAWrapper(
             model_name,
+            tokenizer_name=tokenizer_name,
             device=device,
             layeridx=layeridx,
             reinit=reinit,
