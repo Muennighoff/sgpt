@@ -89,7 +89,7 @@ model = AutoModel.from_pretrained("Muennighoff/SGPT-125M-weightedmean-nli-bitfit
 texts = [
     "deep learning",
     "artificial intelligence",
-    "deep throating",
+    "deep diving",
     "artificial snow",
 ]
 batch_tokens = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
