@@ -33,10 +33,10 @@ logger = logging.getLogger(__name__)
 #### /print debug information to stdout
 
 #Model for which we apply dimensionality reduction
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer('Muennighoff/SGPT-5.8B-weightedmean-nli-bitfit')
 
 #New size for the embeddings
-new_dimension = 128
+new_dimension = 1
 
 
 #We use AllNLI as a source of sentences to compute PCA
@@ -91,6 +91,7 @@ train_embeddings = model.encode(pca_train_sentences, convert_to_numpy=True)
 pca = PCA(n_components=new_dimension)
 pca.fit(train_embeddings)
 pca_comp = np.asarray(pca.components_)
+print(pca.explained_variance_ratio_.cumsum())
 
 # We add a dense layer to the model, so that it will produce directly embeddings with the new size
 dense = models.Dense(in_features=model.get_sentence_embedding_dimension(), out_features=new_dimension, bias=False, activation_function=torch.nn.Identity())
