@@ -113,7 +113,7 @@ class CustomEmbedder:
         self.base_path = f"embeddings/{model_name.split('/')[-1]}/"
         pathlib.Path(self.base_path).mkdir(parents=True, exist_ok=True)
 
-    def embed(self, batch, **kwargs):
+    def embed(self, batch, method, **kwargs):
 
         docs_truncated = 0
         toks_truncated = 0
@@ -154,6 +154,9 @@ class CustomEmbedder:
         batch_tokens = {k: v.to(self.device) for k, v in batch_tokens.items()}
         with torch.no_grad():
             embedded_batch = self.model(**batch_tokens, output_hidden_states=True, **kwargs)
+
+        if method == "nopool":
+            return [embedded_batch.last_hidden_state.cpu()], None, None, None
 
         all_hidden_states = embedded_batch.hidden_states
 
@@ -199,7 +202,7 @@ class CustomEmbedder:
                 # Subselect batch_size items
                 batch = sentences[i : i + self.batch_size]
                 all_hidden_states, input_mask_expanded, gather_indices, embedded_batch = self.embed(
-                    batch, **kwargs
+                    batch, method, **kwargs
                 )
                 hidden_state = all_hidden_states[self.layeridx]
 
@@ -302,6 +305,8 @@ class CustomEmbedder:
                 embedding = torch.mean(embedding, 0)
             elif method == "poolout":
                 embedding = embedded_batch.pooler_output.cpu()
+            elif method == "nopool":
+                embedding = hidden_state
 
             # Turn into list
             out.extend(embedding.numpy().tolist())
@@ -542,6 +547,19 @@ def main(args):
             )
         )
 
+    @torch.no_grad()
+    def semb_nopool_fn(sentences, dataset_name=None, add_name="", idx=None) -> torch.Tensor:
+        return torch.Tensor(
+            model.encode(
+                sentences,
+                method="nopool",
+                show_progress_bar=False,
+                dataset_name=dataset_name,
+                add_name=add_name,
+                idx=idx,
+            )
+        )
+
     def semb_random_base(sentences, **kwargs) -> torch.Tensor:
         embedding_dim = 8
         return torch.Tensor(np.random.rand(len(sentences), embedding_dim))
@@ -553,6 +571,7 @@ def main(args):
         "weightedmean": semb_weightedmean_fn,
         "meanmean": semb_meanmean_fn,
         "poolout": semb_poolout_fn,
+        "nopool": semb_nopool_fn,
         "random": semb_random_base,
     }
     # If a sentence-transformer model, pooling will be automatically loaded & applied
