@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 model = SentenceTransformer('Muennighoff/SGPT-5.8B-weightedmean-nli-bitfit')
 
 #New size for the embeddings
-new_dimension = 1
+new_dimension = 2048
 
 
 #We use AllNLI as a source of sentences to compute PCA
@@ -104,7 +104,7 @@ stsb_evaluator(model)
 
 
 # If you like, you can store the model on disc by uncommenting the following line
-#model.save('models/my-128dim-model')
+model.save('SGPT-5.8B-weightedmean-nli-bitfit-dim2048')
 
 # You can then load the adapted model that produces 128 dimensional embeddings like this:
 #model = SentenceTransformer('models/my-128dim-model')
