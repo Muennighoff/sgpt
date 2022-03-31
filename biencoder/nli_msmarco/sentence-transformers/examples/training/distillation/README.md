@@ -7,7 +7,7 @@ Experiments:
 ```
 python dimensionality_reduction.py
 
-Spearman corrs on cosine sim on sts-b:
+Spearman corrs on cosine sim on sts-b (Note that the scores are different from the paper STS scores / the HF ones as this is the test set; In HF & the paper dev set scores are reported):
 
 Using SGPT-125M-weightedmean-nli-bitfit
 Performance before / adding all components as final linear weight: `0.7857`
