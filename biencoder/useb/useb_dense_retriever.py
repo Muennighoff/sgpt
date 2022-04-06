@@ -51,9 +51,15 @@ def parse_args():
         const=True,
         help="Use OpenAI's embedding API - Make sure to modify the API_KEY variable",
     )
+    parser.add_argument(
+        "--saveemb",
+        action="store_const",
+        default=False,
+        const=True,
+        help="Whether to save embeddings",
+    )
     args = parser.parse_args()
     return args
-
 
 def set_all_seeds(seed):
     """
@@ -321,57 +327,81 @@ API_KEY = "YOUR_KEY"
 
 class OpenAIEmbedder:
     """
-    
+    Benchmark OpenAIs embeddings endpoint on USEB.
     """
-    def __init__(self, engine, batch_size=250, **kwargs):
+    def __init__(self, engine, batch_size=250, save_emb=False, **kwargs):
+        
 
         self.engine = engine
         self.max_token_len = 2048
         self.batch_size = batch_size
+        self.save_emb = save_emb
+        self.base_path = f"embeddings/{engine.split('/')[-1]}/"
+        self.tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+        pathlib.Path(self.base_path).mkdir(parents=True, exist_ok=True)
         
-    def encode(self, sentences, decode=True, **kwargs):
+    def encode(self, 
+            sentences,
+            decode=True,                
+            method="lasttoken",
+            show_progress_bar=False,
+            dataset_name=None,
+            add_name="",
+            idx=None,
+            **kwargs):
+
         import openai
         openai.api_key = API_KEY
 
         fin_embeddings = []
 
-        tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+        embedding_path = f"{self.base_path}/{dataset_name}_{add_name}_{idx}.pickle"
+        if sentences and os.path.exists(embedding_path):
+            loaded = pickle.load(open(embedding_path, "rb"))
+            fin_embeddings = loaded["fin_embeddings"]
+        else:
+            for i in range(0, len(sentences), self.batch_size):
+                batch = sentences[i : i + self.batch_size]
 
-        for i in range(0, len(sentences), self.batch_size):
-            batch = sentences[i : i + self.batch_size]
+                all_tokens = []
+                used_indices = []
+                for j, txt in enumerate(batch):
+                    # Recommendation from OpenAI Docs: replace newlines with space
+                    txt = txt.replace("\n", " ")
+                    tokens = self.tokenizer.encode(txt, add_special_tokens=False)
+                    token_len = len(tokens)
+                    if token_len == 0:
+                        raise ValueError("Empty items should be cleaned prior to running")
+                    if token_len > self.max_token_len:
+                        tokens = tokens[:self.max_token_len]
+                    # For some characters the API raises weird errors, e.g. input=[[126]]
+                    if decode:
+                        tokens = self.tokenizer.decode(tokens)
+                    all_tokens.append(tokens)
+                    used_indices.append(j)
 
-            all_tokens = []
-            used_indices = []
-            for j, txt in enumerate(batch):
-                # Recommendation from OpenAI Docs: replace newlines with space
-                txt = txt.replace("\n", " ")
-                tokens = tokenizer.encode(txt, add_special_tokens=False)
-                token_len = len(tokens)
-                if token_len == 0:
-                    raise ValueError("Empty items should be cleaned prior to running")
-                if token_len > self.max_token_len:
-                    tokens = tokens[: self.max_token_len - 1]  # 0-indexed
-                # For some characters the API raises weird errors, e.g. input=[[126]]
-                if decode:
-                    tokens = tokenizer.decode(tokens)
-                all_tokens.append(tokens)
-                used_indices.append(j)
+                out = [[]] * len(batch)
+                if all_tokens:
+                    response = openai.Engine(id=self.engine).embeddings(input=all_tokens)
+                    assert len(response["data"]) == len(
+                        all_tokens
+                    ), f"Sent {len(all_tokens)}, got {len(response['data'])}"
 
-            out = [[]] * len(batch)
-            if all_tokens:
-                response = openai.Engine(id=self.engine).embeddings(input=all_tokens)
-                assert len(response["data"]) == len(
-                    all_tokens
-                ), f"Sent {len(all_tokens)}, got {len(response['data'])}"
-
-                for data in response["data"]:
-                    idx = data["index"]
-                    # OpenAI seems to return them ordered, but to be save use the index and insert
-                    idx = used_indices[idx]
-                    embedding = data["embedding"]
-                    out[idx] = embedding
-                    
-            fin_embeddings.extend(out)
+                    for data in response["data"]:
+                        idx = data["index"]
+                        # OpenAI seems to return them ordered, but to be save use the index and insert
+                        idx = used_indices[idx]
+                        embedding = data["embedding"]
+                        out[idx] = embedding
+                        
+                fin_embeddings.extend(out)
+        # Save embeddings
+        if fin_embeddings and self.save_emb:
+            embedding_path
+            dump = {
+                "fin_embeddings": fin_embeddings,
+            }
+            pickle.dump(dump, open(embedding_path, "wb"))
 
         assert len(sentences) == len(fin_embeddings)
         return fin_embeddings
@@ -387,6 +417,7 @@ def main(args):
     notnormalize = args.notnormalize
     normalize = not (notnormalize)
     reinit = args.reinit
+    save_emb = args.saveemb
 
     ### MODEL HANDLING ###
     MODELNAME_TO_MODEL = {
@@ -410,13 +441,14 @@ def main(args):
     elif args.usest:
         model = STGPTWrapper(model_name, device=device)
     elif args.openai:
-        model = OpenAIEmbedder(engine=model_name)
+        model = OpenAIEmbedder(engine=model_name, save_emb=save_emb)
     else:
         model = CustomEmbedder(
             model_name,
             device=device,
             layeridx=layeridx,
             reinit=reinit,
+            save_emb=save_emb
         )
 
     ### FN HANDLING ###
@@ -504,8 +536,12 @@ def main(args):
         "random": semb_random_base,
     }
     # If a sentence-transformer model, pooling will be automatically loaded & applied
-    if args.usest or args.openai:
+    if args.usest:
         semb_fn = METHOD_TO_FN["mean"]
+    # OpenAI uses lasttoken pooling
+    # We don't do pooling but using this fn instead of mean gives us kwargs for saving
+    elif args.openai:
+        semb_fn = METHOD_TO_FN["lasttoken"]
     else:
         semb_fn = METHOD_TO_FN[method]
 
