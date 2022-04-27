@@ -7,6 +7,7 @@ import pickle
 import random
 
 import numpy as np
+
 from sentence_transformers import SentenceTransformer
 import torch
 from transformers import AutoModel, AutoTokenizer, GPT2TokenizerFast
@@ -17,13 +18,18 @@ from useb.useb import run
 def parse_args():
     # Parse command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--method", type=str, default="mean", help="Method to use.")
-    parser.add_argument("--modelname", type=str, default="bert-base-uncased", help="Model to use.")
-    parser.add_argument("--tokenizername", type=str, default="/data/checkpoints/aa-alpha-001-128k-multilingual-data-alpha-1_large_new_codebase_bs512/global_step170000/configs/alpha-001-128k.json", help="Tokenizer to use.")
+    parser.add_argument("--method", type=str, default="mean", help="Method to use")
+    parser.add_argument("--modelname", type=str, default="bert-base-uncased", help="Model to use")
+    parser.add_argument(
+        "--tokenizername",
+        type=str,
+        default="./alpha-001-128k.json",
+        help="Tokenizer to use",
+    )
     # Won't make a difference for inference, as inference is deterministic
-    parser.add_argument("--seed", type=int, default=42, help="Seed to use.")
-    parser.add_argument("--device", type=str, default="cuda:0", help="Device to use.")
-    parser.add_argument("--layeridx", type=int, default=-1, help="Layer to use: -1 is the last.")
+    parser.add_argument("--seed", type=int, default=42, help="Seed to use")
+    parser.add_argument("--device", type=str, default="cuda:0", help="Device to use")
+    parser.add_argument("--layeridx", type=int, default=-1, help="Layer to use: -1 is the last")
     parser.add_argument(
         "--notnormalize",
         action="store_const",
@@ -156,7 +162,8 @@ class CustomEmbedder:
             embedded_batch = self.model(**batch_tokens, output_hidden_states=True, **kwargs)
 
         if method == "nopool":
-            return [embedded_batch.last_hidden_state.cpu()], None, None, None
+            # Cast to fp32 in case of bf16 or fp16
+            return [embedded_batch.last_hidden_state.to(torch.float32).cpu()], None, None, None
 
         all_hidden_states = embedded_batch.hidden_states
 
@@ -171,8 +178,8 @@ class CustomEmbedder:
             logging.warn(
                 f"Truncated {docs_truncated} out of {len(batch)} documents by {toks_truncated} out of {total_toks}."
             )
-
-        all_hidden_states = [x.cpu() for x in all_hidden_states]
+        # Cast to fp32 in case of bf16 or fp16
+        all_hidden_states = [x.to(torch.float32).cpu() for x in all_hidden_states]
 
         return all_hidden_states, input_mask_expanded.cpu(), gather_indices, embedded_batch
 
@@ -341,6 +348,7 @@ class AAWrapper(CustomEmbedder):
         save_emb=False,
         reinit=False,
         layeridx=-1,
+        pipe_parallel_size=8,  # Number of GPUs to distribute on PP wise
         **kwargs,
     ):
         from transformer import TransformerModel
@@ -348,15 +356,29 @@ class AAWrapper(CustomEmbedder):
 
         self.device = torch.device(device)
         self.model_name = model_name
-        
-        self.model = TransformerModel.from_checkpoint(model_name, device=device, for_inference=True, config_overwrite={"dataset_kind": "text"}, **kwargs)
+
+        self.model = TransformerModel.from_checkpoint(
+            checkpoint_dir=model_name,
+            device=device,
+            for_inference=True,
+            config_overwrite={
+                "dataset_kind": "text",
+                "finetune_embeddings": False,
+                "finetune_embedding_head": False,
+            },
+            pipe_parallel_size=pipe_parallel_size,
+            **kwargs,
+        )
         if reinit:
             logging.warn("Reiniting all model weights")
             self.model.init_weights()
         self.model.eval()
         self.max_token_len = self.model.config.max_position_embeddings
-        self.tokenizer = PreTrainedTokenizerFast(tokenizer_file=str(tokenizer_name), model_max_length=self.model.config.max_position_embeddings)
-        
+        self.tokenizer = PreTrainedTokenizerFast(
+            tokenizer_file=str(tokenizer_name),
+            model_max_length=self.model.config.max_position_embeddings,
+        )
+
         # gpt models do not have a padding token by default - Add one and ignore it with the attn mask lateron
         self.tokenizer.pad_token = "<|endoftext|>"
 
@@ -370,15 +392,17 @@ class AAWrapper(CustomEmbedder):
 
 API_KEY = "YOUR_KEY"
 
+
 class OpenAIEmbedder:
     def __init__(self, engine, batch_size=250, **kwargs):
 
         self.engine = engine
         self.max_token_len = 2048
         self.batch_size = batch_size
-        
+
     def encode(self, sentences, decode=True, **kwargs):
         import openai
+
         openai.api_key = API_KEY
 
         fin_embeddings = []
@@ -418,13 +442,11 @@ class OpenAIEmbedder:
                     idx = used_indices[idx]
                     embedding = data["embedding"]
                     out[idx] = embedding
-                    
+
             fin_embeddings.extend(out)
 
         assert len(sentences) == len(fin_embeddings)
         return fin_embeddings
-
-
 
 
 def main(args):
@@ -444,7 +466,7 @@ def main(args):
             "sentence-transformers/average_word_embeddings_glove.6B.300d", device=device
         ),
         # Out-of-domain supervised
-        # To avoid having to add compatibility for linear layers in this Wrapper, 
+        # To avoid having to add compatibility for linear layers in this Wrapper,
         # just use Sentence Transformers (--usest)
         # IMPORTANT: Use the sentence-transformers from this repository (biencoder/nli_msmarco/sentence-transformers)
         # as it has been adjusted to work with Dense layers prior to pooling
