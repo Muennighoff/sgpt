@@ -52,7 +52,7 @@ Feel free to open an issue should you have any questions~
 │       ├── *.bash # Bash scripts to run multiple experiments
 │       ├── useb_dense_retriever.py
 │       └── README.md
-├── crossencoder  # Inference of crossencoders
+├── crossencoder  # Inference of Cross-Encoders
 │   └── beir
 │       ├── *.ipynb # Notebooks explained in the README
 │       └── README.md
