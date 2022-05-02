@@ -10,6 +10,8 @@ Changes made by Muennighoff:
 - Add `models/WeightedMeanPooling.py` to allow for mean pooling with learnt weights
 - Add `losses/GradCache` copied from https://github.com/luyug/GradCache at commit `9458d05f6ed36acf0290bcc6886028bb71ea2d71`.
 - Add `MNRLGradCache` in `losses/MultipleNegativesRankingLoss` to use MNRL with GradCache.
+- Adapt `examples/training/distillation/dimensionality_reduction.py` to download SGPT.
+- Adapt `examples/training/distillation/README.md` to explain SGPT distillation experiments.
 - Change `README.md` to write these lines =)
 
 
