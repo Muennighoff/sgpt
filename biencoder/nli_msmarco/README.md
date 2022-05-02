@@ -35,6 +35,9 @@ Do you wish to use FP16 (mixed precision)? [yes/NO]:
 Install sentence-transformers from source from the `sentence-transformers` folder:
 `cd sentence-transformers; pip install -e .`
 
+Install GradCache from source from the `GradCache` folder:
+`cd sentence-transformers/losses/GradCache; pip install --editable .`
+
 Install wandb if you would like to use it:
 `pip install wandb`
 
@@ -43,7 +46,8 @@ In a conda env this might look like:
 conda create --name sgpt
 conda install pytorch torchvision cudatoolkit=11.3 -c pytorch
 ~/conda/envs/sgpt/bin/pip install git+https://github.com/huggingface/accelerate
-~/conda/envs/sgpt/bin/pip install -e . 
+cd sentence-transformers; ~/conda/envs/sgpt/bin/pip install -e . 
+cd sentence-sentence-transformers/losses/GradCache; ~/conda/envs/sgpt/bin/pip install -e . 
 conda install -c conda-forge wandb
 ```
 

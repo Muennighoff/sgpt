@@ -44,6 +44,7 @@ parser.add_argument("--pooling", default="mean", type=str)
 parser.add_argument("--freeze", action="store_true", help="Freeze transformer")
 parser.add_argument("--freezenonbias", action="store_true", help="Freeze all except biases in transformer")
 parser.add_argument("--addxlinear", default=0, type=int, help="Add x linear layers")
+parser.add_argument("--outfeats", default=0, type=int, help="Final out features - To be used with addxlinear 1")
 parser.add_argument("--linearthenpool", action="store_true", help="Move linear layers before pooling")
 parser.add_argument("--useact", action="store_true", help="Whether to use GELU activation on the Linear layers")
 parser.add_argument("--wandb", action="store_true")
@@ -89,18 +90,23 @@ if args.freeze or args.freezenonbias:
             # Freeze all except bias
             continue 
         param.requires_grad = False
-
-feats = word_embedding_model.get_word_embedding_dimension()
-if args.learntmean:
-    pooling_model = models.WeightedMeanPooling(feats, num_positions=max_seq_length)
+if args.outfeats:
+    pool_feats = args.outfeats
+    dense_feats = word_embedding_model.get_word_embedding_dimension()
+    if args.addxlinear != 1:
+        raise ValueError("Outfeats currently only supported with 1 linear layer for rescaling")
 else:
-    pooling_model = models.Pooling(feats, pooling_mode=args.pooling)
+    dense_feats = pool_feats = word_embedding_model.get_word_embedding_dimension()
+if args.learntmean:
+    pooling_model = models.WeightedMeanPooling(pool_feats, num_positions=max_seq_length)
+else:
+    pooling_model = models.Pooling(pool_feats, pooling_mode=args.pooling)
 
 linear_modules = []
 for i in range(args.addxlinear):
     linear_modules.append(models.Dense(
-        in_features=feats, 
-        out_features=feats, 
+        in_features=dense_feats, 
+        out_features=pool_feats, 
         bias=False if args.freezenonbias else True, # Do not add another bias if we already train all biases (BitFit) 
         activation_function=torch.nn.GELU() if args.useact else torch.nn.Identity(),
         key_name="token_embeddings" if args.linearthenpool else "sentence_embedding",

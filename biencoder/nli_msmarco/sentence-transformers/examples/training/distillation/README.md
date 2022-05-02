@@ -1,3 +1,42 @@
+# Preface (Muennighoff)
+
+Changes:
+- Only changed the model in dimensionality_reduction.py
+
+Experiments:
+```
+python dimensionality_reduction.py
+
+Spearman corrs on cosine sim on sts-b (Note that the scores are different from the paper STS scores / the HF ones as this is the test set; In HF & the paper dev set scores are reported):
+
+Using SGPT-125M-weightedmean-nli-bitfit
+Performance before / adding all components as final linear weight: `0.7857`
+768 -> 512: `0.7853`
+768 -> 256: `0.7839`
+768 -> 128: `0.7816`
+
+
+Using SGPT-5.8B-weightedmean-nli-bitfit
+Performance before / adding all components as final linear weight: `0.8567`
+4096 -> 2048: `0.8567`
+4096 -> 1024: `0.8569`
+4096 -> 512: `0.8571`
+4096 -> 256: `0.8541`
+4096 -> 128: `0.8429`
+4096 -> 64: `0.8148`
+4096 -> 1: `0.0509`
+
+Cumulative explained variance, i.e. 1st dimension explains 4.6% of variance; 1st + 2nd explain 8.3%...
+[0.04614163 0.08340323 0.11466747 0.13877194 0.15890035 0.17716545
+ 0.1933392  0.20833823 0.22221388 0.23525153 0.24756658 0.2586709...]
+
+Using a linear model, SGPT-5.8B-weightedmean-nli-bitfit-linear1
+4096: 0.8502
+4096 -> 2048: 0.8503
+```
+
+
+
 # Model Distillation 
 This folder contains example to make SentenceTransformer models **faster, cheaper and lighter**. These light models achieve 97.5% - 100% performance of the original model on downstream tasks.
 
