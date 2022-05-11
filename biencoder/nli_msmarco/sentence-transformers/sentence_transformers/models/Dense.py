@@ -28,7 +28,6 @@ class Dense(nn.Module):
         self.activation_function = activation_function
         self.linear = nn.Linear(in_features, out_features, bias=bias)
 
-        # key_name added by Muennighoff
         self.key_name = key_name
 
         if init_weight is not None:
@@ -38,7 +37,6 @@ class Dense(nn.Module):
             self.linear.bias = nn.Parameter(init_bias)
 
     def forward(self, features: Dict[str, Tensor]):
-        # key_name added by Muennighoff
         features.update({self.key_name: self.activation_function(self.linear(features[self.key_name]))})
         return features
 
@@ -46,7 +44,6 @@ class Dense(nn.Module):
         return self.out_features
 
     def get_config_dict(self):
-        # key_name added by Muennighoff
         return {'in_features': self.in_features, 'out_features': self.out_features, 'bias': self.bias, 'activation_function': fullname(self.activation_function), 'key_name': self.key_name}
 
     def save(self, output_path):

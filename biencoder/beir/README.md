@@ -17,34 +17,34 @@ BEIR dataset: https://github.com/UKPLab/beir.
 
 #### Asymmetric Bi-Encoder results
 
-- https://www.kaggle.com/muennighoff/sgptbeasym (Does not include some json score files for 5.8B due to their large size (BioASQ, MSMARCO..))
+- https://www.kaggle.com/ANONYMIZED/sgptbeasym (Does not include some json score files for 5.8B due to their large size (BioASQ, MSMARCO..))
 
 #### Symmetric Bi-Encoder results (mostly Quora)
 
-- https://www.kaggle.com/muennighoff/beirbiencoderresults1
-- https://www.kaggle.com/muennighoff/beirbiencoderresults2
-- https://www.kaggle.com/muennighoff/beirbiencoderresults3
+- https://www.kaggle.com/ANONYMIZED/beirbiencoderresults1
+- https://www.kaggle.com/ANONYMIZED/beirbiencoderresults2
+- https://www.kaggle.com/ANONYMIZED/beirbiencoderresults3
 
 #### Models
 
-Find them at https://huggingface.co/Muennighoff.
+Find them at https://huggingface.co/ANONYMIZED.
 
 ### Commands
 
-Below are the commands used for all models trained in the paper and available at https://huggingface.co/Muennighoff.
+Below are the commands used for all models trained in the paper and available at https://huggingface.co/ANONYMIZED.
 
 #### SGPT Models
 
 For the best results in the paper on all of BEIR, run:
 
 ```bash
-bash run_sgpt.bash Muennighoff/SGPT-5.8B-weightedmean-msmarco-specb-bitfit cuda:0
+bash run_sgpt.bash ANONYMIZED/SGPT-5.8B-weightedmean-msmarco-specb-bitfit cuda:0
 ```
 
 Individual datasets can be run with e.g.:
 
 ```bash
-python beir_dense_retriever.py --modelname Muennighoff/SGPT-125M-weightedmean-msmarco --method weightedmean --dataset scifact
+python beir_dense_retriever.py --modelname ANONYMIZED/SGPT-125M-weightedmean-msmarco --method weightedmean --dataset scifact
 ```
 
 Results are accumulated in a .json file. 

@@ -4,5 +4,5 @@ vals=($(seq -1 -1 -13))
 for i in ${vals[@]}
 do
    echo "$i"
-   python useb_dense_retriever.py --modelname Muennighoff/SGPT-125M-mean-nli --method mean --layeridx $i
+   python useb_dense_retriever.py --modelname ANONYMIZED/SGPT-125M-mean-nli --method mean --layeridx $i
 done

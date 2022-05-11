@@ -16,17 +16,17 @@ Notebook overview:
 
 BEIR dataset: https://github.com/UKPLab/beir.
 
-BEIR BM25 results: https://www.kaggle.com/muennighoff/beirbm25results
+BEIR BM25 results: https://www.kaggle.com/ANONYMIZED/beirbm25results
 You can use these BM25 results to benchmark your own re-ranker on BEIR without having to re-run BM25 + It will be easily comparable to all results in the SGPT paper :)
-BEIR OpenAI Semantic Search results: https://www.kaggle.com/muennighoff/beiropenairesults
-BEIR SGPT Cross-Encoder using GPT-J (6.1B parameters) results: https://www.kaggle.com/muennighoff/beirgptjresults
-BEIR SGPT Cross-Encoder using GPT-Neo (2.7B parameters) results: https://www.kaggle.com/muennighoff/beirgptneo27results
-BEIR SGPT Cross-Encoder using GPT-Neo (1.3B parameters) results: https://www.kaggle.com/muennighoff/beirgptneo13results
-BEIR SGPT Cross-Encoder using GPT-Neo (125M parameters) results: https://www.kaggle.com/muennighoff/beirgptneo01results
-BEIR SGPT Cross-Encoder using a 13B model results (not better than 125M): https://www.kaggle.com/muennighoff/beir13bresults
-BEIR-Subset prompt ablations: https://www.kaggle.com/muennighoff/beirpromptablations
+BEIR OpenAI Semantic Search results: https://www.kaggle.com/ANONYMIZED/beiropenairesults
+BEIR SGPT Cross-Encoder using GPT-J (6.1B parameters) results: https://www.kaggle.com/ANONYMIZED/beirgptjresults
+BEIR SGPT Cross-Encoder using GPT-Neo (2.7B parameters) results: https://www.kaggle.com/ANONYMIZED/beirgptneo27results
+BEIR SGPT Cross-Encoder using GPT-Neo (1.3B parameters) results: https://www.kaggle.com/ANONYMIZED/beirgptneo13results
+BEIR SGPT Cross-Encoder using GPT-Neo (125M parameters) results: https://www.kaggle.com/ANONYMIZED/beirgptneo01results
+BEIR SGPT Cross-Encoder using a 13B model results (not better than 125M): https://www.kaggle.com/ANONYMIZED/beir13bresults
+BEIR-Subset prompt ablations: https://www.kaggle.com/ANONYMIZED/beirpromptablations
 
-BEIR Quora Symmetric Semantic Search Experiments Results https://www.kaggle.com/muennighoff/beirquorapromptsresults
+BEIR Quora Symmetric Semantic Search Experiments Results https://www.kaggle.com/ANONYMIZED/beirquorapromptsresults
 
 
 ### Commands

@@ -73,7 +73,7 @@ else:
 
 if args.wandb and accelerator.is_main_process:
     import wandb
-    wandb.init(project="sgpt", entity="muennighoff")
+    wandb.init(project="sgpt", entity="")
     wandb.config.update(args)
 
 # Save path of the model

@@ -1,4 +1,4 @@
-# Preface (Muennighoff)
+# Preface
 
 This is a clone of the USEB repo at the commit `17f013829092e3445da5ab79b1cc0fe9af95e2a4`.
 Changes:

@@ -8,12 +8,12 @@ This module is for training biencoders on NLI & MSMARCO, also see https://github
 
 ### Downloads
 
-STS-B evaluations are included in the model files available at https://huggingface.co/Muennighoff.
+STS-B evaluations are included in the model files available at https://huggingface.co/ANONYMIZED.
 We did not evaluate on NLI. MSMARCO evaluation for `SGPT-6.1B-weightedmean-msmarco-specb-bitfit` is available in `sgpt/biencoder/beir`.
 
 ### Commands
 
-Below are all commands used for all models trained in the paper and available at https://huggingface.co/Muennighoff.
+Below are all commands used for all models trained in the paper and available at https://huggingface.co/ANONYMIZED.
 
 #### Requirements
 

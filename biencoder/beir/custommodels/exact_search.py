@@ -119,7 +119,7 @@ class DenseRetrievalExactSearch:
                         self.results[query_id][corpus_id] = score
 
                 if batch_num > 0:
-                    # Muennighoff:
+                    # ANONYMIZED:
                     # Reorder by top-K to reduce size of self.results saving memory
                     # This is O(n log (k) and reduces self.results size to 1/(num_batches)
                     k_keys_sorted_by_values = heapq.nlargest(

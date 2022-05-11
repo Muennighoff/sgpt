@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 #### /print debug information to stdout
 
 #Model for which we apply dimensionality reduction
-model = SentenceTransformer('Muennighoff/SGPT-5.8B-weightedmean-nli-bitfit')
+model = SentenceTransformer('ANONYMIZED/SGPT-5.8B-weightedmean-nli-bitfit')
 
 #New size for the embeddings
 new_dimension = 2048

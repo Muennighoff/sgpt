@@ -1,4 +1,4 @@
-# Preface (Muennighoff)
+# Preface
 
 Changes:
 - Only changed the model in dimensionality_reduction.py

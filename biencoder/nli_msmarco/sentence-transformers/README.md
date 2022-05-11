@@ -1,7 +1,7 @@
-# Preface (Muennighoff)
+# Preface
 
 Cloned at the commit `d28a53ab0699271c2ca43f9d875f4922ba0ebf39` from https://github.com/TevenLeScao/sentence-transformers.
-Changes made by Muennighoff:
+Changes made:
 - Adapt `training_nli_v2.py` to work with GPT, wandb, accelerate, add argparse & various arguments
 - Adapt `training_bi-encoder_mnrl.py` to work with GPT, wandb & various arguments
 - Update `models/Pooling.py` to include weightedmean & lasttoken

@@ -1,11 +1,6 @@
 ## SGPT: GPT Sentence Embeddings for Semantic Search
 
-This repository contains code, results and pre-trained models for the paper [SGPT: GPT Sentence Embeddings for Semantic Search](https://arxiv.org/abs/2202.08904).
-
-**************************** Updates ****************************
-
-* 03/16: 5.8B Bi-Encoder models are now 4% & 1% better on USEB & BEIR, respectively. [Paper](https://arxiv.org/abs/2202.08904) & [models](https://huggingface.co/models?search=sgpt-5.8b) on HF have been updated. This has been done by using larger batch sizes with GradCache, see the paper for more info. If you have previously downloaded them, we recommend replacing it with the new version.
-* 02/21: We released [our paper](https://arxiv.org/abs/2202.08904). Check it out! :)
+This repository contains code, results and pre-trained models for the paper SGPT: GPT Sentence Embeddings for Semantic Search.
 
 ### Quick Links
 
@@ -14,8 +9,6 @@ This repository contains code, results and pre-trained models for the paper [SGP
   - [Use SGPT with Huggingface](#use-sgpt-with-huggingface)
     - [Bi-encoder](#biencoder)
     - [Cross-encoder](#crossencoder)
-  - [Acknowledgements](#acknowledgements)
-  - [Citation](#citation)
 
 ### Overview
 
@@ -63,13 +56,13 @@ Feel free to open an issue should you have any questions~
 └── README.md
 ```
 
-Each data sub-directory provides its own README with an overview of its **Structure**, **Downloads** (Datasets, Models) & **Commands** used to produce the datasets, models & other things. Generally, you can find all models at https://huggingface.co/Muennighoff and json results in various datasets at https://www.kaggle.com/muennighoff/datasets. Model names are explained in their Huggingface READMEs. Dataset names are explained in the sub-folders of this repository.
+Each data sub-directory provides its own README with an overview of its **Structure**, **Downloads** (Datasets, Models) & **Commands** used to produce the datasets, models & other things. Generally, you can find all models at https://huggingface.co/ANONYMIZED and json results in various datasets at https://www.kaggle.com/ANONYMIZED/datasets. Model names are explained in their Huggingface READMEs. Dataset names are explained in the sub-folders of this repository.
 
 
 ### Use SGPT with Huggingface
 
 Below we provide python examples to use the pre-trained models for your own semantic search use case.
-We highly recommend replacing the model names with larger models, e.g. `Muennighoff/SGPT-5.8B-weightedmean-nli-bitfit` for biencoder/symmetric.
+We highly recommend replacing the model names with larger models, e.g. `ANONYMIZED/SGPT-5.8B-weightedmean-nli-bitfit` for biencoder/symmetric.
 
 #### Biencoder
 
@@ -81,9 +74,9 @@ from transformers import AutoModel, AutoTokenizer
 from scipy.spatial.distance import cosine
 
 # Get our models - The package will take care of downloading the models automatically
-# For best performance: Muennighoff/SGPT-5.8B-weightedmean-nli-bitfit
-tokenizer = AutoTokenizer.from_pretrained("Muennighoff/SGPT-125M-weightedmean-nli-bitfit")
-model = AutoModel.from_pretrained("Muennighoff/SGPT-125M-weightedmean-nli-bitfit")
+# For best performance: ANONYMIZED/SGPT-5.8B-weightedmean-nli-bitfit
+tokenizer = AutoTokenizer.from_pretrained("ANONYMIZED/SGPT-125M-weightedmean-nli-bitfit")
+model = AutoModel.from_pretrained("ANONYMIZED/SGPT-125M-weightedmean-nli-bitfit")
 
 # Tokenize input texts
 texts = [
@@ -141,9 +134,9 @@ from transformers import AutoModel, AutoTokenizer
 from scipy.spatial.distance import cosine
 
 # Get our models - The package will take care of downloading the models automatically
-# For best performance: Muennighoff/SGPT-5.8B-weightedmean-msmarco-specb-bitfit
-tokenizer = AutoTokenizer.from_pretrained("Muennighoff/SGPT-125M-weightedmean-msmarco-specb-bitfit")
-model = AutoModel.from_pretrained("Muennighoff/SGPT-125M-weightedmean-msmarco-specb-bitfit")
+# For best performance: ANONYMIZED/SGPT-5.8B-weightedmean-msmarco-specb-bitfit
+tokenizer = AutoTokenizer.from_pretrained("ANONYMIZED/SGPT-125M-weightedmean-msmarco-specb-bitfit")
+model = AutoModel.from_pretrained("ANONYMIZED/SGPT-125M-weightedmean-msmarco-specb-bitfit")
 
 queries = [
     "I'm searching for a planet not too far from Earth.",
@@ -278,23 +271,4 @@ for query in queries:
 
 You can use the same code as in the above [CE-Asym section](#asymmetric-semantic-search-1) but change the prompt. Feel free to share prompts that work well :)
 
-### Acknowledgements
 
-We thank Constantin Eichenberg and Samuel Weinbach for insightful discussions and valuable feedback throughout the project. We thank Robert Baldock, Marco Bellagente and Koen Oostermeijer for reading drafts of the paper. This work has been supported by OpenAI under the academic access program. 
-This work would not have been possible without:
-- UKPLab: [SBERT](https://github.com/UKPLab/sentence-transformers), [BEIR](https://github.com/UKPLab/beir), [USEB](https://github.com/UKPLab/useb)
-- [Eleuther AI Models](https://github.com/EleutherAI/gpt-neox)
-- [Huggingface Transformers](https://github.com/huggingface/transformers)
-
-### Citation
-
-Feel free to cite our paper if SGPT is helpful to you :) 
-
-```bibtex
-@article{muennighoff2022sgpt,
-  title={SGPT: GPT Sentence Embeddings for Semantic Search},
-  author={Muennighoff, Niklas},
-  journal={arXiv preprint arXiv:2202.08904},
-  year={2022}
-}
-```

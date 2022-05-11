@@ -1,4 +1,4 @@
-# Preface (Muennighoff)
+# Preface
 
 Copied at commit `9458d05f6ed36acf0290bcc6886028bb71ea2d71` from https://github.com/luyug/GradCache.
 Below follows the original README.
