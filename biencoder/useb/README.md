@@ -65,3 +65,10 @@ Or install sentence-transformers from `sgpt/biencoder/nli_msmarco/sentence-trans
 ```bash
 python useb_dense_retriever.py --modelname Muennighoff/SGPT-5.8B-weightedmean-nli-bitfit --usest --method weightedmean
 ```
+
+AA Transformer:
+
+```bash
+python useb_dense_retriever.py --modelname /mnt/train-fss/text_search_sym_13B_noprojbiases/global_step13000/ --aa --method nopool --tokenizername /mnt/train-fss/data/128k-alpha-001-by-source/alpha-001-128k.json
+```
+
