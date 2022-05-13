@@ -160,12 +160,13 @@ class CustomEmbedder:
         batch_tokens = {k: v.to(self.device) for k, v in batch_tokens.items()}
         with torch.no_grad():
             embedded_batch = self.model(**batch_tokens, output_hidden_states=True, **kwargs)
-
+        
+        all_hidden_states = embedded_batch.hidden_states
+        
         if method == "nopool":
             # Cast to fp32 in case of bf16 or fp16
-            return [embedded_batch.last_hidden_state.to(torch.float32).cpu()], None, None, None
-
-        all_hidden_states = embedded_batch.hidden_states
+            # Need to skip the input mask expansion as the shapes would not confirm as this output is already pooled
+            return [x.to(torch.float32).cpu() for x in all_hidden_states], None, None, None
 
         input_mask_expanded = (
             batch_tokens["attention_mask"]
