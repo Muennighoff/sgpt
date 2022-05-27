@@ -389,7 +389,8 @@ class AAWrapper(CustomEmbedder):
         self.batch_size = batch_size
         self.save_emb = save_emb
         self.layeridx = layeridx
-
+        
+        self.method = method
         self.base_path = f"embeddings/{model_name.split('/')[-1]}/{self.method}/{dataset}"
         pathlib.Path(self.base_path).mkdir(parents=True, exist_ok=True)
 
