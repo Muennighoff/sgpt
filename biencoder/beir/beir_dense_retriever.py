@@ -459,7 +459,7 @@ def main(args):
             AAWrapper(
                 model_name,
                 method=method,
-                tokenizer_name=args.tokenizer_name,
+                tokenizer_name=args.tokenizername,
                 device=device,
                 batch_size=batch_size,
                 layeridx=layeridx,

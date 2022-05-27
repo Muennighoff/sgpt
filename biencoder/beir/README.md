@@ -85,3 +85,9 @@ bash run_curie_search.bash
 ```bash
 bash run_curie_similarity.bash
 ```
+
+AA Transformer:
+
+```bash
+python beir_dense_retriever.py --modelname /mnt/train-fss/text_search_sym_13B_biases_proj2560_bs48/global_step13000/ --aa --method nopool --tokenizername /mnt/train-fss/data/128k-alpha-001-by-source/alpha-001-128k.json
+```
