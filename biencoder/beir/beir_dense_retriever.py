@@ -88,6 +88,19 @@ def parse_args():
         const=True,
         help="Use special brackets encoding method",
     )
+    parser.add_argument(
+        "--tokenizername",
+        type=str,
+        default="./alpha-001-128k.json",
+        help="Tokenizer to use",
+    )
+    parser.add_argument(
+        "--aa",
+        action="store_const",
+        default=False,
+        const=True,
+        help="Use AA's models",
+    )
     args = parser.parse_args()
     return args
 
@@ -176,6 +189,11 @@ class CustomEmbedder:
             embedded_batch = self.model(**batch_tokens, output_hidden_states=True, **kwargs)
 
         all_hidden_states = embedded_batch.hidden_states
+
+        if self.method == "nopool":
+            # Cast to fp32 in case of bf16 or fp16
+            # Need to skip the input mask expansion as the shapes would not confirm as this output is already pooled
+            return [x.to(torch.float32).cpu() for x in all_hidden_states], None, None, None
 
         input_mask_expanded = (
             batch_tokens["attention_mask"]
@@ -274,6 +292,9 @@ class CustomEmbedder:
             elif self.method == "poolout":
                 embedding = embedded_batch.pooler_output.cpu()
 
+            elif self.method == "nopool":
+                embedding = hidden_state
+
             add_embeddings = {id: emb.numpy() for id, emb in zip(ids, embedding)}
             all_embeddings = {**all_embeddings, **add_embeddings}
 
@@ -318,6 +339,59 @@ class CustomEmbedder:
         logger.info(f"Produced embeddings of shape {embeddings.shape}")
         return embeddings
 
+
+class AAWrapper(CustomEmbedder):
+    def __init__(
+        self,
+        model_name,
+        tokenizer_name,
+        batch_size=250,
+        device="cuda:0",
+        save_emb=False,
+        reinit=False,
+        layeridx=-1,
+        pipe_parallel_size=8,  # Number of GPUs to distribute on PP wise
+        dataset="scifact",
+        method="nopool",
+        **kwargs,
+    ):
+        from transformer import TransformerModel
+        from transformers import PreTrainedTokenizerFast
+
+        self.device = torch.device(device)
+        self.model_name = model_name
+
+        self.model = TransformerModel.from_checkpoint(
+            checkpoint_dir=model_name,
+            device=device,
+            for_inference=True,
+            config_overwrite={
+                "dataset_kind": "text",
+                "finetune_embeddings": False,
+                "finetune_embedding_head": False,
+            },
+            pipe_parallel_size=pipe_parallel_size,
+            **kwargs,
+        )
+        if reinit:
+            logging.warn("Reiniting all model weights")
+            self.model.init_weights()
+        self.model.eval()
+        self.max_token_len = self.model.config.max_position_embeddings
+        self.tokenizer = PreTrainedTokenizerFast(
+            tokenizer_file=str(tokenizer_name),
+            model_max_length=self.model.config.max_position_embeddings,
+        )
+
+        # gpt models do not have a padding token by default - Add one and ignore it with the attn mask lateron
+        self.tokenizer.pad_token = "<|endoftext|>"
+
+        self.batch_size = batch_size
+        self.save_emb = save_emb
+        self.layeridx = layeridx
+
+        self.base_path = f"embeddings/{model_name.split('/')[-1]}/{self.method}/{dataset}"
+        pathlib.Path(self.base_path).mkdir(parents=True, exist_ok=True)
 
 
 def main(args):
@@ -380,7 +454,18 @@ def main(args):
             custom_model = DRES(SentenceBERTBOSEOS(model_name, speca=speca, specb=specb, device=device), batch_size=batch_size)
         else:
             custom_model = DRES(models.SentenceBERT(model_name, device=device), batch_size=batch_size)
-
+    elif args.aa:
+        model = DenseRetrievalExactSearch(
+            AAWrapper(
+                model_name,
+                method=method,
+                tokenizer_name=args.tokenizer_name,
+                device=device,
+                batch_size=batch_size,
+                layeridx=layeridx,
+                save_emb=save_emb,
+            )
+        )
     else:
         custom_model = DenseRetrievalExactSearch(
             CustomEmbedder(
