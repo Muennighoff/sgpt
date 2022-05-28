@@ -36,7 +36,7 @@ Install sentence-transformers from source from the `sentence-transformers` folde
 `cd sentence-transformers; pip install -e .`
 
 Install GradCache from source from the `GradCache` folder:
-`cd sentence-transformers/losses/GradCache; pip install --editable .`
+`cd sentence-transformers/sentence_transformers/losses/GradCache; pip install --editable .`
 
 Install wandb if you would like to use it:
 `pip install wandb`
