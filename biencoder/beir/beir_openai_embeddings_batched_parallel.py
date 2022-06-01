@@ -16,7 +16,7 @@ from beir import util, LoggingHandler
 from beir.datasets.data_loader import GenericDataLoader
 from beir.retrieval.evaluation import EvaluateRetrieval
 
-from dense import DenseRetrievalExactSearch
+from custommodels import DenseRetrievalExactSearch
 from parallelizer import DataFrameParallelizer
 from parallelizer.parallelizer import ErrorHandling
 
@@ -178,10 +178,10 @@ class OpenAIRetriever:
         max_token_len: int,
         out_name=None,
         save_to_file=False,
-        batch_size=250,
-        parallel_workers=4,
+        batch_size=50,
+        parallel_workers=1,
         max_attempts=3,
-        wait_interval=10,
+        wait_interval=60,
     ):
 
         openai.api_key = api_key

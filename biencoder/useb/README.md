@@ -7,9 +7,6 @@ This module is for evaluating biencoders on the USEB dataset, also see https://g
 
 - `useb`: Folder with a slightly adapted version of https://github.com/UKPLab/useb. Refer to the README in the folder for the changes.
 - `useb_dense_retriever.py`: Module for benchmarking Bi-Encoder SGPT & SBERT models on USEB.
-- `crossencoder_bioasq_bm25`: Parsing of the BioASQ dataset & running it with BM25 - This dataset is 21GB in size & requires some specific processing, hence the separate notebook. Run it on a large RAM instance to avoid BM25 running out of memory.
-- `crossencoder_openai`: Scoring the OpenAI semantic search endpoint on BEIR (This is not the embedding endpoint, but (most likely) a Cross Encoder based endpoint)
-- `crossencoder_utils`: Various utils for BIER & the other noteboks (Partly they have been duplicated in `crossencoder_beir_sgpt`)
 
 
 ### Downloads
@@ -25,14 +22,14 @@ OOD Unsupervised + OOD Supervised results: https://www.kaggle.com/muennighoff/us
 
 Pip:
 ```bash
-python -m useb/useb.downloading all
+python -m useb/useb.downloading all # Or: python useb/useb/downloading.py all
 pip install pytrec_eval
 cd ../nli_msmarco/sentence-transformers; pip install -e .
 ```
 
 Conda:
 ```bash
-python -m useb/useb.downloading all
+python -m useb/useb.downloading all # Or: python useb/useb/downloading.py all
 ~/conda/envs/sgpt/bin/pip install pytrec_eval
 cd ../nli_msmarco/sentence-transformers; ~/conda/envs/sgpt/bin/pip install -e . 
 ```

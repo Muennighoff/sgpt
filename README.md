@@ -4,7 +4,8 @@ This repository contains code, results and pre-trained models for the paper [SGP
 
 **************************** Updates ****************************
 
-* 2/21: We released [our paper](https://arxiv.org/abs/2202.08904). Check it out! :)
+* 03/16: 5.8B Bi-Encoder models are now 4% & 1% better on USEB & BEIR, respectively. [Paper](https://arxiv.org/abs/2202.08904) & [models](https://huggingface.co/models?search=sgpt-5.8b) on HF have been updated. This has been done by using larger batch sizes with GradCache, see the paper for more info. If you have previously downloaded them, we recommend replacing it with the new version.
+* 02/21: We released [our paper](https://arxiv.org/abs/2202.08904). Check it out! :)
 
 ### Quick Links
 
@@ -51,7 +52,7 @@ Feel free to open an issue should you have any questions~
 │       ├── *.bash # Bash scripts to run multiple experiments
 │       ├── useb_dense_retriever.py
 │       └── README.md
-├── crossencoder  # Inference of crossencoders
+├── crossencoder  # Inference of Cross-Encoders
 │   └── beir
 │       ├── *.ipynb # Notebooks explained in the README
 │       └── README.md
@@ -88,7 +89,7 @@ model = AutoModel.from_pretrained("Muennighoff/SGPT-125M-weightedmean-nli-bitfit
 texts = [
     "deep learning",
     "artificial intelligence",
-    "deep throating",
+    "deep diving",
     "artificial snow",
 ]
 batch_tokens = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")

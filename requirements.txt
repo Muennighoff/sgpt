@@ -1,3 +1,3 @@
 beir==0.2.3
 openai==0.11.4
-pytorch=1.10.1 # We used conda with the build: py3.9_cuda11.3_cudnn8.2.0_0
+pytorch==1.10.1 # We used conda with the build: py3.9_cuda11.3_cudnn8.2.0_0

@@ -6,8 +6,12 @@ Changes made by Muennighoff:
 - Adapt `training_bi-encoder_mnrl.py` to work with GPT, wandb & various arguments
 - Update `models/Pooling.py` to include weightedmean & lasttoken
 - Update `models/Transformers.py` to work with special tokens requiring separate tokenization
-- Adapt `SentenceTransformer.py` to work with wandb & fix cuda bug (https://github.com/UKPLab/sentence-transformers/pull/1215#issuecomment-1009909522)
+- Adapt `SentenceTransformer.py` to work with wandb, fix cuda bug (https://github.com/UKPLab/sentence-transformers/pull/1215#issuecomment-1009909522) & add GradCache arguments
 - Add `models/WeightedMeanPooling.py` to allow for mean pooling with learnt weights
+- Add `losses/GradCache` copied from https://github.com/luyug/GradCache at commit `9458d05f6ed36acf0290bcc6886028bb71ea2d71`.
+- Add `MNRLGradCache` in `losses/MultipleNegativesRankingLoss` to use MNRL with GradCache.
+- Adapt `examples/training/distillation/dimensionality_reduction.py` to download SGPT.
+- Adapt `examples/training/distillation/README.md` to explain SGPT distillation experiments.
 - Change `README.md` to write these lines =)
 
 
