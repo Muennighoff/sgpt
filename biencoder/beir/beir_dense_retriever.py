@@ -371,6 +371,7 @@ class AAWrapper(CustomEmbedder):
         pipe_parallel_size=8,  # Number of GPUs to distribute on PP wise
         dataset="scifact",
         method="nopool",
+        specb=False,
         **kwargs,
     ):
         from transformer import TransformerModel
@@ -407,6 +408,13 @@ class AAWrapper(CustomEmbedder):
         self.batch_size = batch_size
         self.save_emb = save_emb
         self.layeridx = layeridx
+
+        self.specb = specb
+        if specb:
+            self.bos_token_q = self.tokenizer.encode(SPECB_QUE_BOS)
+            self.eos_token_q = self.tokenizer.encode(SPECB_QUE_EOS)
+            self.bos_token_d = self.tokenizer.encode(SPECB_DOC_BOS)
+            self.eos_token_d = self.tokenizer.encode(SPECB_DOC_EOS)
 
         self.method = method
         self.base_path = f"embeddings/{model_name.split('/')[-1]}/{self.method}/{dataset}"
@@ -483,6 +491,7 @@ def main(args):
                 batch_size=batch_size,
                 layeridx=layeridx,
                 save_emb=save_emb,
+                specb=specb,
             )
         )
     else:
