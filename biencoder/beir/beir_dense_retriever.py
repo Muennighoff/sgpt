@@ -5,7 +5,7 @@ import logging
 import os
 import pathlib
 import pickle
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, ValuesView
 
 import numpy as np
 import torch
@@ -104,7 +104,11 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+SPECB_QUE_BOS = "["
+SPECB_QUE_EOS = "]"
 
+SPECB_DOC_BOS = "{"
+SPECB_DOC_EOS = "}"
 
 class CustomEmbedder:
     def __init__(
@@ -117,6 +121,7 @@ class CustomEmbedder:
         layeridx=-1,
         method="mean",
         dataset="scifact",
+        specb=False,
         **kwargs,
     ):
         self.device = torch.device(device)
@@ -141,12 +146,18 @@ class CustomEmbedder:
         self.save_emb = save_emb
         self.layeridx = layeridx
         self.method = method
-
+        
+        self.specb = specb
+        if specb:
+            self.bos_token_q = self.tokenizer.encode(SPECB_QUE_BOS)
+            self.eos_token_q = self.tokenizer.encode(SPECB_QUE_EOS)
+            self.bos_token_d = self.tokenizer.encode(SPECB_DOC_BOS)
+            self.eos_token_d = self.tokenizer.encode(SPECB_DOC_EOS)
         
         self.base_path = f"embeddings/{model_name.split('/')[-1]}/{self.method}/{dataset}"
         pathlib.Path(self.base_path).mkdir(parents=True, exist_ok=True)
 
-    def embed(self, batch, **kwargs):
+    def embed(self, batch, is_query, **kwargs):
 
         docs_truncated = 0
         toks_truncated = 0
@@ -174,6 +185,13 @@ class CustomEmbedder:
             input_dict = self.tokenizer.prepare_for_model(
                 tokens[: self.max_token_len], add_special_tokens=True
             )
+            if self.specb:
+                if is_query:
+                    input_dict["input_ids"] = self.bos_token_q + input_dict["input_ids"] + self.eos_token_q
+                else:
+                    input_dict["input_ids"] = self.bos_token_d + input_dict["input_ids"] + self.eos_token_d
+                input_dict["attention_mask"] = [1] + input_dict["attention_mask"] + [1]
+
             # input_ids: Same as tokens, but with model-specific beginning and end tokens
             # attention_mask: List of 1s for each input_id, i.e. the tokens it should attend to
             batch_tokens["input_ids"].append(input_dict["input_ids"])
@@ -211,13 +229,13 @@ class CustomEmbedder:
 
         return all_hidden_states, input_mask_expanded.cpu(), gather_indices, embedded_batch
     
-    def embed_batcher(self, texts: List[Tuple[int, str]], out_name=None, **kwargs):
+    def embed_batcher(self, texts: List[Tuple[int, str]], is_query, out_name=None, **kwargs):
         all_embeddings = {}
         for i in range(0, len(texts), self.batch_size):
             # Subselect batch_size items
             batch = texts[i : i + self.batch_size]
             ids, sentences = zip(*batch)
-            all_hidden_states, input_mask_expanded, gather_indices, embedded_batch = self.embed(sentences)
+            all_hidden_states, input_mask_expanded, gather_indices, embedded_batch = self.embed(sentences, is_query=is_query)
             
             hidden_state = all_hidden_states[self.layeridx]
             if abs(self.layeridx) > len(all_hidden_states):
@@ -312,7 +330,7 @@ class CustomEmbedder:
         if os.path.exists(embedding_queries_path):
             embeddings = pickle.load(open(embedding_queries_path, "rb"))
         else:
-            embeddings = self.embed_batcher(texts=queries, out_name=embedding_queries_path, **kwargs)
+            embeddings = self.embed_batcher(texts=queries, out_name=embedding_queries_path, is_query=True, **kwargs)
 
         # Sort embeddings according to the order given & take just the values
         embeddings = [embeddings[id] for (id, _) in queries]
@@ -331,7 +349,7 @@ class CustomEmbedder:
         else:
             # corpus is of form [(id, {"title": "xxx", "text": "yyy"}), ...]
             corpus = [(id, data["text"]) for (id, data) in corpus]
-            embeddings = self.embed_batcher(texts=corpus, out_name=embedding_corpus_path, **kwargs)
+            embeddings = self.embed_batcher(texts=corpus, out_name=embedding_corpus_path, is_query=False, **kwargs)
         # Sort embeddings according to the order given
         embeddings = [embeddings[id] for (id, _) in corpus]
 
@@ -468,6 +486,8 @@ def main(args):
             )
         )
     else:
+        if speca:
+            raise ValueError("speca is only supported with use_st")
         custom_model = DenseRetrievalExactSearch(
             CustomEmbedder(
                 model_name=model_name,
@@ -475,7 +495,8 @@ def main(args):
                 device=device,
                 batch_size=batch_size,
                 save_emb=save_emb,
-                layeridx=layeridx
+                layeridx=layeridx,
+                specb=specb,
             )
         )
 
