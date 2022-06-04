@@ -8,7 +8,8 @@ Notebook overview:
 - `crossencoder_beir_sgpt`: Creating SGPT reranking results based on BM25 results (Note: If you do not want to rerun BM25, you can download the BM25 results from the datasets provided, see the Downloads section for more information.)
 - `crossencoder_bioasq_bm25`: Parsing of the BioASQ dataset & running it with BM25 - This dataset is 21GB in size & requires some specific processing, hence the separate notebook. Run it on a large RAM instance to avoid BM25 running out of memory.
 - `crossencoder_openai`: Scoring the OpenAI semantic search endpoint on BEIR (This is not the embedding endpoint, but (most likely) a Cross Encoder based endpoint)
-- `../other/sgpt_utils`: Various utils for compouting re-ranking scores & graphs for the SGPT paper (The code is partly duplicated in `crossencoder_beir_sgpt`)
+- `openai_search_endpoint_functionality.py` OpenAI Search Endpoint mechanism (Released to the public on 06/2022 (After SGPT paper release))
+- `../../other/sgpt_utils`: Various utils for compouting re-ranking scores & graphs for the SGPT paper (The code is partly duplicated in `crossencoder_beir_sgpt`)
 
 ### Downloads
 
