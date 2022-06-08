@@ -66,6 +66,13 @@ def parse_args():
         help="Use AA's models",
     )
     parser.add_argument(
+        "--aaapi",
+        action="store_const",
+        default=False,
+        const=True,
+        help="Use AA's API",
+    )
+    parser.add_argument(
         "--saveemb",
         action="store_const",
         default=False,
@@ -397,7 +404,86 @@ class AAWrapper(CustomEmbedder):
         pathlib.Path(self.base_path).mkdir(parents=True, exist_ok=True)
 
 
-API_KEY = "YOUR_KEY"
+API_KEY = "YOUR_API_KEY"
+
+class AAEmbedder:
+    """
+    Benchmark AA embeddings endpoint on USEB.
+    """
+    def __init__(self, engine, tokenizer_name, batch_size=250, save_emb=False, embedding_type="symmetric", **kwargs):
+        from transformers import PreTrainedTokenizerFast
+
+        self.engine = engine
+        self.max_token_len = 2048
+        self.batch_size = batch_size
+        self.save_emb = save_emb
+        self.base_path = f"embeddings/{engine.split('/')[-1]}/"
+        self.tokenizer = PreTrainedTokenizerFast(
+            tokenizer_file=str(tokenizer_name),
+            model_max_length=2048,
+        )
+        self.embedding_type = embedding_type
+        pathlib.Path(self.base_path).mkdir(parents=True, exist_ok=True)
+
+    def encode(self, 
+            sentences,               
+            method="weighted_mean",
+            show_progress_bar=False,
+            dataset_name=None,
+            add_name="",
+            idx=None,
+            **kwargs):
+
+        import requests
+        fin_embeddings = []
+
+        embedding_path = f"{self.base_path}/{dataset_name}_{add_name}_{idx}.pickle"
+        if sentences and os.path.exists(embedding_path):
+            loaded = pickle.load(open(embedding_path, "rb"))
+            fin_embeddings = loaded["fin_embeddings"]
+        else:
+            for i in range(0, len(sentences), self.batch_size):
+                batch = sentences[i : i + self.batch_size]
+                for j, txt in enumerate(batch):
+                    # Recommendation from OpenAI Docs: replace newlines with space
+                    txt = txt.replace("\n", " ")
+                    tokens = self.tokenizer.encode(txt, add_special_tokens=False)
+                    token_len = len(tokens)
+                    if token_len == 0:
+                        raise ValueError("Empty items should be cleaned prior to running")
+                    if token_len > self.max_token_len:
+                        tokens = tokens[:self.max_token_len]
+                    # Decode again, as AA does not offer sending tokens functionality
+                    txt = self.tokenizer.decode(tokens)
+                    response = requests.post(
+                        "https://test.api.aleph-alpha.com/embed",
+                        headers={
+                            "Authorization": f"Bearer {API_KEY}",
+                            "User-Agent": "Aleph-Alpha-Python-Client-1.4.2",
+                        },
+                        json={
+                            "model": self.engine,
+                            "prompt": txt,
+                            "layers": [],
+                            "tokens": False,
+                            "pooling": ["weighted_mean"],
+                            "type": self.embedding_type,
+                        },
+                    )
+                    result = response.json()
+                    fin_embeddings.append(result["embeddings"][self.embedding_type]["weighted_mean"])
+
+        # Save embeddings
+        if fin_embeddings and self.save_emb:
+            embedding_path
+            dump = {
+                "fin_embeddings": fin_embeddings,
+            }
+            pickle.dump(dump, open(embedding_path, "wb"))
+
+        assert len(sentences) == len(fin_embeddings)
+        return fin_embeddings
+
 
 
 class OpenAIEmbedder:
@@ -524,6 +610,12 @@ def main(args):
             device=device,
             layeridx=layeridx,
             reinit=reinit,
+        )
+    elif args.aaapi:
+        model = AAEmbedder(
+            engine=model_name, 
+            tokenizer_name=tokenizer_name,
+            save_emb=save_emb
         )
     else:
         model = CustomEmbedder(
