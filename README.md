@@ -85,6 +85,8 @@ from scipy.spatial.distance import cosine
 # For best performance: Muennighoff/SGPT-5.8B-weightedmean-nli-bitfit
 tokenizer = AutoTokenizer.from_pretrained("Muennighoff/SGPT-125M-weightedmean-nli-bitfit")
 model = AutoModel.from_pretrained("Muennighoff/SGPT-125M-weightedmean-nli-bitfit")
+# Deactivate Dropout (There is no dropout in the above models so it makes no difference here but other SGPT models may have dropout)
+model.eval()
 
 # Tokenize input texts
 texts = [
@@ -145,6 +147,8 @@ from scipy.spatial.distance import cosine
 # For best performance: Muennighoff/SGPT-5.8B-weightedmean-msmarco-specb-bitfit
 tokenizer = AutoTokenizer.from_pretrained("Muennighoff/SGPT-125M-weightedmean-msmarco-specb-bitfit")
 model = AutoModel.from_pretrained("Muennighoff/SGPT-125M-weightedmean-msmarco-specb-bitfit")
+# Deactivate Dropout (There is no dropout in the above models so it makes no difference here but other SGPT models may have dropout)
+model.eval()
 
 queries = [
     "I'm searching for a planet not too far from Earth.",
@@ -239,6 +243,8 @@ from scipy.spatial.distance import cosine
 # For best performance: EleutherAI/gpt-j-6B
 tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neo-125M")
 model = AutoModelForCausalLM.from_pretrained("EleutherAI/gpt-neo-125M")
+# Deactivate Dropout (There is no dropout in the above models so it makes no difference here but other SGPT models may have dropout)
+model.eval()
 
 prompt = 'Documents are searched to find matches with the same content.\nThe document "{}" is a good search result for "'
 
