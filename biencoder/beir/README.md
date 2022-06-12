@@ -44,7 +44,7 @@ bash run_sgpt.bash Muennighoff/SGPT-5.8B-weightedmean-msmarco-specb-bitfit cuda:
 Individual datasets can be run with e.g.:
 
 ```bash
-python beir_dense_retriever.py --modelname Muennighoff/SGPT-125M-weightedmean-msmarco --method weightedmean --dataset scifact
+python beir_dense_retriever.py --modelname Muennighoff/SGPT-125M-weightedmean-msmarco --method weightedmean --dataset scifact --specb
 ```
 
 Results are accumulated in a .json file. 

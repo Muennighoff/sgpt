@@ -28,9 +28,8 @@ class Pooling(nn.Module):
                  pooling_mode_max_tokens: bool = False,
                  pooling_mode_mean_tokens: bool = True,
                  pooling_mode_mean_sqrt_len_tokens: bool = False,
-
-                 pooling_mode_weightedmean_tokens: bool = True,
-                 pooling_mode_lasttoken: bool = True,
+                 pooling_mode_weightedmean_tokens: bool = False,
+                 pooling_mode_lasttoken: bool = False,
                  ):
         super(Pooling, self).__init__()
 
@@ -159,7 +158,7 @@ class Pooling(nn.Module):
             # but as we set some indices (which shouldn't be attended to) to 0 with clamp, we
             # use the attention mask to ignore them again
             input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
-            embedding = torch.gather(token_embeddings * input_mask_expanded, 1, gather_indices).squeeze()
+            embedding = torch.gather(token_embeddings * input_mask_expanded, 1, gather_indices).squeeze(dim=1)
 
             
             output_vectors.append(embedding)
