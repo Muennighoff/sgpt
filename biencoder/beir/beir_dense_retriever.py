@@ -5,7 +5,7 @@ import logging
 import os
 import pathlib
 import pickle
-from typing import Dict, List, Tuple, ValuesView
+from typing import Dict, List, Tuple
 
 import numpy as np
 import torch
