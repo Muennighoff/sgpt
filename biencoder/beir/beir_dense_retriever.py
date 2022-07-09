@@ -338,7 +338,7 @@ class CustomEmbedder:
             embeddings = pickle.load(open(embedding_corpus_path, "rb"))
         else:
             # corpus is of form [(id, {"title": "xxx", "text": "yyy"}), ...]
-            corpus = [(id, data["title"] + " " + data["text"]).strip() if "title" in data else data["text"].strip() for (id, data) in corpus]
+            corpus = [(id, (data["title"] + " " + data["text"]).strip()) if "title" in data else data["text"].strip() for (id, data) in corpus]
             embeddings = self.embed_batcher(texts=corpus, out_name=embedding_corpus_path, is_query=False, **kwargs)
         # Sort embeddings according to the order given
         embeddings = [embeddings[id] for (id, _) in corpus]
