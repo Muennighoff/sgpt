@@ -88,6 +88,12 @@ def parse_args():
         const=True,
         help="Use special brackets encoding method",
     )
+    parser.add_argument(
+        "--maxseqlen",
+        type=int, 
+        default=None,
+        help="Sequence length to use; SGPT-msmarco-specb models use 300"
+    )
     args = parser.parse_args()
     return args
 
@@ -109,6 +115,7 @@ class CustomEmbedder:
         method="mean",
         dataset="scifact",
         specb=False,
+        maxseqlen=None,
         **kwargs,
     ):
         self.device = torch.device(device)
@@ -118,10 +125,14 @@ class CustomEmbedder:
             logging.warn("Reiniting all model weights")
             self.model.init_weights()
         self.model.eval()
-        self.max_token_len = self.model.config.max_position_embeddings
+        self.max_token_len = maxseqlen if maxseqlen else self.model.config.max_position_embeddings
+
         # Account for special tokens:
         if "bert" in model_name:
             logging.info("BERT model detected: Reducing token len by 2 to account for [CLS] & [SEP]")
+            self.max_token_len -= 2
+        if specb:
+            # Leave two tokens for special brackets
             self.max_token_len -= 2
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -327,7 +338,7 @@ class CustomEmbedder:
             embeddings = pickle.load(open(embedding_corpus_path, "rb"))
         else:
             # corpus is of form [(id, {"title": "xxx", "text": "yyy"}), ...]
-            corpus = [(id, data["text"]) for (id, data) in corpus]
+            corpus = [(id, data["title"] + " " + data["text"]).strip() if "title" in data else data["text"].strip() for (id, data) in corpus]
             embeddings = self.embed_batcher(texts=corpus, out_name=embedding_corpus_path, is_query=False, **kwargs)
         # Sort embeddings according to the order given
         embeddings = [embeddings[id] for (id, _) in corpus]
@@ -351,6 +362,7 @@ def main(args):
     layeridx = args.layeridx
     speca = args.speca
     specb = args.specb
+    maxseqlen = args.maxseqlen
 
 
     if args.computeavg:
@@ -411,6 +423,7 @@ def main(args):
                 save_emb=save_emb,
                 layeridx=layeridx,
                 specb=specb,
+                maxseqlen=maxseqlen,
             )
         )
 
