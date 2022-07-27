@@ -369,8 +369,11 @@ if not args.no_training:
     # For training the SentenceTransformer model, we need a dataset, a dataloader, and a loss used for training.
     train_dataset = MSMARCODataset(train_queries, corpus=corpus, asym=args.asym)
     train_dataloader = DataLoader(train_dataset, shuffle=True, batch_size=train_batch_size)
+    scaler = None
     if args.gradcache:
-        train_loss = losses.MNRLGradCache(model, chunk_size=args.chunksize)
+        if args.use_amp:
+            scaler = torch.cuda.amp.GradScaler()
+        train_loss = losses.MNRLGradCache(model, chunk_size=args.chunksize, fp16=args.use_amp,scaler=scaler)
     else:
         train_loss = losses.MultipleNegativesRankingLoss(model)
 
@@ -396,6 +399,7 @@ if not args.no_training:
               log_wandb=args.wandb,
               use_gradcache=args.gradcache,
               chunk_size=args.chunksize,
+              scaler=scaler,
               )
 
     # Save the model

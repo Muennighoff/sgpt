@@ -637,7 +637,8 @@ class SentenceTransformer(nn.Sequential):
             accelerator: Accelerator = None,
             log_wandb = False,
             use_gradcache=False,
-            chunk_size=1
+            chunk_size=1,
+            scaler=None,
             ):
         """
         Train the model with the given training objective
@@ -695,7 +696,8 @@ class SentenceTransformer(nn.Sequential):
 
         if use_amp:
             from torch.cuda.amp import autocast
-            scaler = torch.cuda.amp.GradScaler()
+            if scaler is None:
+                scaler = torch.cuda.amp.GradScaler()
 
         dataloaders = [dataloader for dataloader, _ in train_objectives]
         # Use smart batching
@@ -775,15 +777,23 @@ class SentenceTransformer(nn.Sequential):
                     features, labels = data
 
                     if use_amp:
-                        if use_gradcache:
-                            raise ValueError("Amp is not yet compatible with GradCache, see MNRLGradCache docstring")
-                        with autocast():
-                            loss_value = loss_model(features, labels)
+                        #if use_gradcache:
+                        #    raise ValueError("Amp is not yet compatible with GradCache, see MNRLGradCache docstring")
 
+                        
                         scale_before_step = scaler.get_scale()
-                        accelerator.backward(scaler.scale(loss_value))
+                        if use_gradcache is False:
+                            with autocast():
+                                loss_value = loss_model(features, labels)
+                        else:
+                            # GradCache does autocast
+                            loss_value = loss_model(features, labels)
+                        # GradCache already does the backward pass & scaler.scale(loss).backward(**kwargs)
+                        if use_gradcache is False:
+                            accelerator.backward(scaler.scale(loss_value))
                         training_steps += 1
                         scaler.unscale_(optimizer)
+
                         if use_gradcache:
                             torch.nn.utils.clip_grad_norm_(loss_model.model.parameters(), max_grad_norm)
                         else:

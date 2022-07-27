@@ -91,7 +91,13 @@ class MNRLGradCache(GradCache):
     should overwrite build_cache & forward_backward funcs to place in accelerator.backward(loss)
     """
 
-    def __init__(self, model: SentenceTransformer, scale: float = 20.0, similarity_fct = util.cos_sim, chunk_size = 1):
+    def __init__(self, 
+            model: SentenceTransformer, 
+            scale: float = 20.0, 
+            similarity_fct = util.cos_sim, 
+            chunk_size = 1,
+            fp16 = False,
+            scaler = None):
         """
         chunk_size: Final batch size bottlenecking memory, i.e. set the batch size to the actual batch size you want,
             then set chunk_size to be so small that it works
@@ -110,8 +116,8 @@ class MNRLGradCache(GradCache):
             loss_fn=self.loss_fn,
             split_input_fn=None,  # Should be able to handle dict of tensors
             get_rep_fn=lambda v: v["sentence_embedding"],  
-            fp16=False,
-            scaler=None,
+            fp16=fp16,
+            scaler=scaler,
         )
 
     def loss_fn(self, embeddings_a, embeddings_b, embeddings_n=None):
