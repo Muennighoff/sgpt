@@ -637,7 +637,7 @@ class SentenceTransformer(nn.Sequential):
             accelerator: Accelerator = None,
             log_wandb = False,
             use_gradcache=False,
-            chunk_size=1,
+            gradcache_kwargs={},
             scaler=None,
             ):
         """
@@ -696,8 +696,7 @@ class SentenceTransformer(nn.Sequential):
 
         if use_amp:
             from torch.cuda.amp import autocast
-            if scaler is None:
-                scaler = torch.cuda.amp.GradScaler()
+            scaler = torch.cuda.amp.GradScaler()
 
         dataloaders = [dataloader for dataloader, _ in train_objectives]
         # Use smart batching
@@ -708,7 +707,8 @@ class SentenceTransformer(nn.Sequential):
         loss_models = [loss for _, loss in train_objectives]
         if use_gradcache:
             # Reinitialize the class with the new model to grab the updated model in the super function in MNRLGradCache
-            loss_models = [loss_model.__class__(accelerator.prepare(loss_model.model), chunk_size=chunk_size) for loss_model in loss_models]
+            loss_models = [loss_model.__class__(accelerator.prepare(loss_model.model), **gradcache_kwargs)  for loss_model in loss_models]#chunk_size=chunk_size) for loss_model in loss_models]
+            #accelerator.scaler = loss_models[0].scaler
         else:
             loss_models = [accelerator.prepare(loss_model) for loss_model in loss_models]
 
@@ -777,22 +777,20 @@ class SentenceTransformer(nn.Sequential):
                     features, labels = data
 
                     if use_amp:
-                        #if use_gradcache:
-                        #    raise ValueError("Amp is not yet compatible with GradCache, see MNRLGradCache docstring")
-
-                        
-                        scale_before_step = scaler.get_scale()
-                        if use_gradcache is False:
+                        # GradCache already does the backward pass & scaler.scale(loss).backward(**kwargs)
+                        if use_gradcache:
+                            #scale_before_step = loss_model.scaler.get_scale()
+                            loss_value = loss_model(features, labels)
+                        else:
+                            scale_before_step = scaler.get_scale()
                             with autocast():
                                 loss_value = loss_model(features, labels)
-                        else:
-                            # GradCache does autocast
-                            loss_value = loss_model(features, labels)
-                        # GradCache already does the backward pass & scaler.scale(loss).backward(**kwargs)
-                        if use_gradcache is False:
-                            accelerator.backward(scaler.scale(loss_value))
+                                accelerator.backward(scaler.scale(loss_value))
                         training_steps += 1
-                        scaler.unscale_(optimizer)
+                        if use_gradcache:
+                            loss_model.scaler.unscale_(optimizer)
+                        else:
+                            scaler.unscale_(optimizer)
 
                         if use_gradcache:
                             torch.nn.utils.clip_grad_norm_(loss_model.model.parameters(), max_grad_norm)
@@ -800,9 +798,15 @@ class SentenceTransformer(nn.Sequential):
                             torch.nn.utils.clip_grad_norm_(loss_model.parameters(), max_grad_norm)
 
                         if training_steps % gradient_accumulation == 0:
-                            scaler.step(optimizer)
-                            scaler.update()
-                            skip_scheduler = scaler.get_scale() != scale_before_step
+                            if use_gradcache:
+                                optimizer.step()
+                                loss_model.scaler.step(optimizer)
+                                loss_model.scaler.update()
+                                skip_scheduler = loss_model.scaler.get_scale() != scale_before_step
+                            else:
+                                scaler.step(optimizer)
+                                scaler.update()
+                                skip_scheduler = scaler.get_scale() != scale_before_step
                             optimizer.zero_grad()
                             if not skip_scheduler:
                                 scheduler.step()

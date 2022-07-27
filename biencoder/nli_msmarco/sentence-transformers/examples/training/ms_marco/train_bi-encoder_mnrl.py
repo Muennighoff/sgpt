@@ -398,8 +398,11 @@ if not args.no_training:
               accelerator=accelerator,
               log_wandb=args.wandb,
               use_gradcache=args.gradcache,
-              chunk_size=args.chunksize,
-              scaler=scaler,
+              gradcache_kwargs={
+                "chunk_size": args.chunksize,
+                "fp16": args.use_amp,
+                "scaler": scaler,
+              },
               )
 
     # Save the model

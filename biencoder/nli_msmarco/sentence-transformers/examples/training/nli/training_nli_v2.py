@@ -54,6 +54,7 @@ parser.add_argument("--no_training", action="store_true")
 parser.add_argument("--model_save_path", default=None, type=str)
 parser.add_argument("--gradcache", action="store_true")
 parser.add_argument("--chunksize",  default=1, type=int, help="Chunks to use for gradcache")
+parser.add_argument("--use_amp", action="store_true")
 
 args = parser.parse_args()
 print(args)
@@ -204,11 +205,14 @@ if not args.no_training:
             optimizer_params={'lr': args.lr},
             gradient_accumulation=gradient_accumulation,
             output_path=model_save_path,
-            use_amp=False,          #Set to True, if your GPU supports FP16 operations
+            use_amp=args.use_amp,        #Set to True, if your GPU supports FP16 operations
             accelerator=accelerator,
             log_wandb=args.wandb,
             use_gradcache=args.gradcache,
-            chunk_size=args.chunksize
+            gradcache_kwargs={
+                "chunk_size": args.chunksize,
+                "fp16": args.use_amp,
+              },
             )
 
 
