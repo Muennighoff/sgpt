@@ -352,3 +352,5 @@ On BEIR going from a batch size of 16 to 256 yielded a 1% average performance in
 
 
 For simple usage of wandb, we prepend `WANDB_BASE_URL=https://api.wandb.ai WANDB_API_KEY=YOUR_API_KEY WANDB_ENTITY=YOUR_ENTITY_NAME WANDB_PROJECT=YOUR_PROJECT` to all commands.
+
+When no internet connection is available also prepend `WANDB_MODE="dryrun"` and upload results afterwards using `WANDB_BASE_URL=https://api.wandb.ai WANDB_API_KEY=YOUR_API_KEY WANDB_ENTITY=YOUR_ENTITY_NAME WANDB_PROJECT=YOUR_PROJECT wandb sync --sync-all`
