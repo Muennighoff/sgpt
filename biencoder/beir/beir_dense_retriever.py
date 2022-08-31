@@ -447,13 +447,26 @@ def main(args):
 
     ndgcs_path = f"./beir_embeddings_ndcgs.json"
     if not os.path.exists(ndgcs_path):
-        ndcgs_json = {"ndcgs": {}}
+        ndcgs_json = {"ndcgs": {}, "maps": {}, "recalls": {}, "precisions": {}}
     else:
         with open(ndgcs_path, "r") as f:
             ndcgs_json = json.load(f)
 
     ndcgs_json["ndcgs"].setdefault(model_name, {})
     ndcgs_json["ndcgs"][model_name][dataset] = ndcg
+
+    # Backwards compat
+    ndcgs_json.setdefault("maps", {})
+    ndcgs_json.setdefault("recalls", {})
+    ndcgs_json.setdefault("precisions", {})
+
+    ndcgs_json["maps"].setdefault(model_name, {})
+    ndcgs_json["recalls"].setdefault(model_name, {})
+    ndcgs_json["precisions"].setdefault(model_name, {})
+
+    ndcgs_json["maps"][model_name][dataset] = _map
+    ndcgs_json["recalls"][model_name][dataset] = recall
+    ndcgs_json["precisions"][model_name][dataset] = precision
 
     # Add average of cqadupstack once all present
     CQADUPSTACK_DATASETS = [

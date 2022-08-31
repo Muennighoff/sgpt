@@ -1,9 +1,10 @@
 ## SGPT: GPT Sentence Embeddings for Semantic Search
 
-This repository contains code, results and pre-trained models for the paper [SGPT: GPT Sentence Embeddings for Semantic Search](https://arxiv.org/abs/2202.08904).
+This repository contains code, results & pre-trained models for the paper [SGPT: GPT Sentence Embeddings for Semantic Search](https://arxiv.org/abs/2202.08904).
 
 **************************** Updates ****************************
 
+* 2022-08: Multilingual BLOOM SGPT models were released: [Asymmetric, 7.1B parameters](https://huggingface.co/bigscience/sgpt-bloom-7b1-msmarco) & [Symmetric, 1.7B parameters](https://huggingface.co/bigscience-data/sgpt-bloom-1b7-nli). Feel free to open an issue if you need a different model.
 * 2022-06: OpenAI released the mechanism of their Search Endpoint that we compared to SGPT Cross-Encoders in the [paper](https://arxiv.org/abs/2202.08904). Our methods are very similar. Feel free to test their prompt as seen in `crossencoder/beir/openai_search_endpoint_functionality.py`!
 * 2022-03: 5.8B Bi-Encoder models are now 4% & 1% better on USEB & BEIR, respectively. [Paper](https://arxiv.org/abs/2202.08904) & [models](https://huggingface.co/models?search=sgpt-5.8b) on HF have been updated. This has been done by using larger batch sizes with GradCache, see the paper for more info. If you have previously downloaded them, we recommend replacing it with the new version.
 * 2022-02: We released [our paper](https://arxiv.org/abs/2202.08904). Check it out! :)
