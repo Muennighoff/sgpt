@@ -85,3 +85,92 @@ bash run_curie_search.bash
 ```bash
 bash run_curie_similarity.bash
 ```
+
+
+#### Quick benchmarking
+
+You can use the below script for quick benchmarking after you have installed the requirements outlined at the top.
+
+```python
+from beir import util, LoggingHandler
+from beir.datasets.data_loader import GenericDataLoader
+from beir.retrieval.evaluation import EvaluateRetrieval
+from beir.retrieval.search.dense import DenseRetrievalExactSearch as DRES
+
+import logging
+import pathlib, os
+
+#### Just some code to print debug information to stdout
+logging.basicConfig(format='%(asctime)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    level=logging.INFO,
+                    handlers=[LoggingHandler()])
+#### /print debug information to stdout
+
+
+from sentence_transformers import SentenceTransformer, models
+
+from torch import Tensor
+from typing import List, Dict, Union, Tuple
+import numpy as np
+
+class SentenceBERTBOSEOS:
+    def __init__(self, model_path: Union[str, Tuple] = None, sep: str = " ", **kwargs):
+        self.sep = sep
+        self.model = SentenceTransformer(model_path, **kwargs)
+
+        word_embedding_model = self.model._first_module()
+        assert isinstance(word_embedding_model, models.Transformer)
+
+        tokens = ["[SOS]", "{SOS}"]
+        word_embedding_model.tokenizer.add_tokens(tokens, special_tokens=True)
+        word_embedding_model.auto_model.resize_token_embeddings(len(word_embedding_model.tokenizer))
+
+        # Will be replaced with the rep ones
+        word_embedding_model.bos_spec_token_q = word_embedding_model.tokenizer.encode("[SOS]", add_special_tokens=False)[0]
+        word_embedding_model.bos_spec_token_d = word_embedding_model.tokenizer.encode("{SOS}", add_special_tokens=False)[0]
+
+        word_embedding_model.bos_spec_token_q_rep = word_embedding_model.tokenizer.encode("[", add_special_tokens=False)[0]
+        word_embedding_model.eos_spec_token_q = word_embedding_model.tokenizer.encode("]", add_special_tokens=False)[0]
+        
+        word_embedding_model.bos_spec_token_d_rep = word_embedding_model.tokenizer.encode("{", add_special_tokens=False)[0]
+        word_embedding_model.eos_spec_token_d = word_embedding_model.tokenizer.encode("}", add_special_tokens=False)[0]
+
+        word_embedding_model.replace_bos = True
+
+    def encode_queries(self, queries: List[str], batch_size: int = 16, **kwargs) -> Union[List[Tensor], np.ndarray, Tensor]:
+        # Will be replaced with [ in the models tokenization
+        # If we would put [ here, there is a risk of it getting chained with a different token when encoding
+        queries = ["[SOS]" + q for q in queries]
+        return self.model.encode(queries, batch_size=batch_size, **kwargs)
+    
+    def encode_corpus(self, corpus: List[Dict[str, str]], batch_size: int = 8, **kwargs) -> Union[List[Tensor], np.ndarray, Tensor]:
+        # Will be replaced with { in the models tokenization
+        # If we would put { here, there is a risk of it getting chained with a different token when encoding
+        sentences = [("{SOS}" + doc["title"] + self.sep + doc["text"]).strip() if "title" in doc else "{SOS}" + doc["text"].strip() for doc in corpus]
+        return self.model.encode(sentences, batch_size=batch_size, **kwargs)
+
+ 
+#### Download scifact.zip dataset and unzip the dataset
+dataset = "scifact"
+url = "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{}.zip".format(dataset)
+out_dir = os.path.join(pathlib.Path("./").parent.absolute(), "datasets")
+data_path = util.download_and_unzip(url, out_dir)
+
+#### Provide the data_path where scifact has been downloaded and unzipped
+corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split="test")
+
+#### Load the SBERT model and retrieve using cosine-similarity
+
+model = DRES(
+    SentenceBERTBOSEOS(
+        "Muennighoff/SGPT-125M-weightedmean-msmarco-specb-bitfit",
+    ), batch_size=16
+)
+
+retriever = EvaluateRetrieval(model, score_function="cos_sim")
+results = retriever.retrieve(corpus, queries)
+
+#### Evaluate your model with NDCG@k, MAP@K, Recall@K and Precision@K  where k = [1,3,5,10,100,1000] 
+ndcg, _map, recall, precision = retriever.evaluate(qrels, results, retriever.k_values)
+```

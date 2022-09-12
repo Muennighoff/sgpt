@@ -4,6 +4,7 @@ This repository contains code, results & pre-trained models for the paper [SGPT:
 
 **************************** Updates ****************************
 
+* 2022-09: SGPT is now easy to use with [Sentence Transformers](https://github.com/UKPLab/sentence-transformers), see [new scripts](#use-sgpt-with-sentence-transformers)
 * 2022-08: Multilingual BLOOM SGPT models were released: [Asymmetric, 7.1B parameters](https://huggingface.co/bigscience/sgpt-bloom-7b1-msmarco) & [Symmetric, 1.7B parameters](https://huggingface.co/bigscience-data/sgpt-bloom-1b7-nli). Feel free to open an issue if you need a different model.
 * 2022-06: OpenAI released the mechanism of their Search Endpoint that we compared to SGPT Cross-Encoders in the [paper](https://arxiv.org/abs/2202.08904). Our methods are very similar. Feel free to test their prompt as seen in `crossencoder/beir/openai_search_endpoint_functionality.py`!
 * 2022-03: 5.8B Bi-Encoder models are now 4% & 1% better on USEB & BEIR, respectively. [Paper](https://arxiv.org/abs/2202.08904) & [models](https://huggingface.co/models?search=sgpt-5.8b) on HF have been updated. This has been done by using larger batch sizes with GradCache, see the paper for more info. If you have previously downloaded them, we recommend replacing it with the new version.
@@ -11,13 +12,23 @@ This repository contains code, results & pre-trained models for the paper [SGPT:
 
 ### Quick Links
 
-  - [Overview](#overview)
-  - [Structure](#structure)
-  - [Use SGPT with Huggingface](#use-sgpt-with-huggingface)
-    - [Bi-encoder](#biencoder)
-    - [Cross-encoder](#crossencoder)
-  - [Acknowledgements](#acknowledgements)
-  - [Citation](#citation)
+- [Overview](#overview)
+- [Structure](#structure)
+- [Use SGPT with Huggingface](#use-sgpt-with-huggingface)
+    - [Biencoder](#biencoder)
+        - [Symmetric Semantic Search BE](#symmetric-semantic-search-be)
+        - [Asymmetric Semantic Search BE](#asymmetric-semantic-search-be)
+    - [Crossencoder](#crossencoder)
+        - [Asymmetric Semantic Search CE](#asymmetric-semantic-search-ce)
+        - [Symmetric Semantic Search CE](#symmetric-semantic-search-ce)
+- [Use SGPT with Sentence Transformers](#use-sgpt-with-sentence-transformers)
+    - [Bi-Encoder](#bi-encoder)
+        - [Symmetric Semantic Search BE ST](#symmetric-semantic-search-be-st)
+        - [Asymmetric Semantic Search BE ST](#asymmetric-semantic-search-be-st)
+            - [SGPT Sentence Transformers](#sgpt-sentence-transformers)
+            - [Original Sentence Transformers](#original-sentence-transformers)
+- [Acknowledgements](#acknowledgements)
+- [Citation](#citation)
 
 ### Overview
 
@@ -75,7 +86,7 @@ We highly recommend replacing the model names with larger models, e.g. `Muennigh
 
 #### Biencoder
 
-##### Symmetric Semantic Search
+##### Symmetric Semantic Search BE
 
 ```python
 import torch
@@ -137,7 +148,7 @@ print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (texts[0], texts[
 print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (texts[0], texts[3], cosine_sim_0_3))
 ```
 
-##### Asymmetric Semantic Search
+##### Asymmetric Semantic Search BE
 
 ```python
 import torch
@@ -233,7 +244,7 @@ print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs
 
 #### Crossencoder
 
-##### Asymmetric Semantic Search
+##### Asymmetric Semantic Search CE
 
 ```python
 import torch
@@ -282,9 +293,149 @@ for query in queries:
         print(f"Document: {doc[:20] + '...'} Score: {score}")
 ```
 
-##### Symmetric Semantic Search
+##### Symmetric Semantic Search CE
 
 You can use the same code as in the above [CE-Asym section](#asymmetric-semantic-search-1) but change the prompt. Feel free to share prompts that work well :)
+
+### Use SGPT with Sentence Transformers
+
+#### Bi-Encoder
+
+##### Symmetric Semantic Search BE ST
+
+Symmetric models are now 100% compatible with the latest [sentence-transformers](https://github.com/UKPLab/sentence-transformers) via `pip install git+https://github.com/UKPLab/sentence-transformers.git`. You should get the same results as in [the HuggingFace script above.](#symmetric-semantic-search-be)
+
+```python
+from scipy.spatial.distance import cosine
+from sentence_transformers import SentenceTransformer
+
+texts = [
+    "deep learning",
+    "artificial intelligence",
+    "deep diving",
+    "artificial snow",
+]
+
+model = SentenceTransformer("Muennighoff/SGPT-125M-weightedmean-nli-bitfit")
+embeddings = model.encode(texts)
+
+cosine_sim_0_1 = 1 - cosine(embeddings[0], embeddings[1])
+cosine_sim_0_2 = 1 - cosine(embeddings[0], embeddings[2])
+cosine_sim_0_3 = 1 - cosine(embeddings[0], embeddings[3])
+
+print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (texts[0], texts[1], cosine_sim_0_1))
+print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (texts[0], texts[2], cosine_sim_0_2))
+print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (texts[0], texts[3], cosine_sim_0_3))
+```
+
+##### Asymmetric Semantic Search BE ST
+
+###### SGPT Sentence Transformers
+
+Install: `pip install --upgrade git+https://github.com/Muennighoff/sentence-transformers.git@sgpt_poolings_specb`
+Use the below, which produces the exact same scores as the [HuggingFace solution above.](#asymmetric-semantic-search-be)
+
+```python
+from scipy.spatial.distance import cosine
+from sentence_transformers import SentenceTransformer
+
+queries = [
+    "I'm searching for a planet not too far from Earth.",
+]
+
+docs = [
+    "Neptune is the eighth and farthest-known Solar planet from the Sun. In the Solar System, it is the fourth-largest planet by diameter, the third-most-massive planet, and the densest giant planet. It is 17 times the mass of Earth, slightly more massive than its near-twin Uranus.",
+    "TRAPPIST-1d, also designated as 2MASS J23062928-0502285 d, is a small exoplanet (about 30% the mass of the earth), which orbits on the inner edge of the habitable zone of the ultracool dwarf star TRAPPIST-1 approximately 40 light-years (12.1 parsecs, or nearly 3.7336×1014 km) away from Earth in the constellation of Aquarius.",
+    "A harsh desert world orbiting twin suns in the galaxy’s Outer Rim, Tatooine is a lawless place ruled by Hutt gangsters. Many settlers scratch out a living on moisture farms, while spaceport cities such as Mos Eisley and Mos Espa serve as home base for smugglers, criminals, and other rogues.",
+]
+
+class SentenceTransformerSpecb(SentenceTransformer):
+    # Requires:
+    # pip install git+https://github.com/Muennighoff/sentence-transformers.git@sgpt_poolings_specb
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        tokens = ["[SOS]", "{SOS}"]
+        self._first_module().tokenizer.add_tokens(tokens, special_tokens=True)
+        self._first_module().auto_model.resize_token_embeddings(len(self._first_module().tokenizer))
+        # Will be replaced with the rep tokens in the model ones
+        # The problem is we don't know if a text is query or document when tokenizing in the Transformer.py module, 
+        # so we use the SOS tokens as an identifier if we have a query or document at hand & then replace them
+        # If we would directly use the brackets here, they may become part of another token
+        self._first_module().bos_spec_token_q = self._first_module().tokenizer.encode("[SOS]", add_special_tokens=False)[0]
+        self._first_module().bos_spec_token_d = self._first_module().tokenizer.encode("{SOS}", add_special_tokens=False)[0]
+        self._first_module().bos_spec_token_q_rep = self._first_module().tokenizer.encode("[", add_special_tokens=False)[0]
+        self._first_module().eos_spec_token_q = self._first_module().tokenizer.encode("]", add_special_tokens=False)[0]
+        self._first_module().bos_spec_token_d_rep = self._first_module().tokenizer.encode("{", add_special_tokens=False)[0]
+        self._first_module().eos_spec_token_d = self._first_module().tokenizer.encode("}", add_special_tokens=False)[0]
+        self._first_module().replace_bos = True
+
+    def encode(self, sentences, **kwargs):
+        is_query = kwargs.pop("is_query", True)
+        if is_query:
+            sentences = "[SOS]" + sentences if isinstance(sentences, str) else ["[SOS]" + sent for sent in sentences]
+        else:
+            sentences = "{SOS}" + sentences if isinstance(sentences, str) else ["{SOS}" + sent for sent in sentences]    
+        return super().encode(sentences, **kwargs)
+        
+model = SentenceTransformerSpecb("Muennighoff/SGPT-125M-weightedmean-msmarco-specb-bitfit")
+
+query_embeddings = model.encode(queries, is_query=True)
+doc_embeddings = model.encode(docs, is_query=False)
+
+# Calculate cosine similarities
+# Cosine similarities are in [-1, 1]. Higher means more similar
+cosine_sim_0_1 = 1 - cosine(query_embeddings[0], doc_embeddings[0])
+cosine_sim_0_2 = 1 - cosine(query_embeddings[0], doc_embeddings[1])
+cosine_sim_0_3 = 1 - cosine(query_embeddings[0], doc_embeddings[2])
+
+print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs[0][:20] + "...", cosine_sim_0_1))
+print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs[1][:20] + "...", cosine_sim_0_2))
+print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs[2][:20] + "...", cosine_sim_0_3))
+```
+
+###### Original Sentence Transformers
+
+If you want to use the Sentence Transformers at `https://github.com/UKPLab/sentence-transformers`, you can use the below.
+Note that this will produce slightly worse scores than [SGPT Sentence Transformers](#sgpt-sentence-transformers), as the special brackets may get intermingled with other tokens upon tokenization. On SciFact (BEIR) NDCG@10 of the below decreases to 0.566 from 0.569 for `SGPT-125M-weightedmean-msmarco-specb-bitfit`.
+
+```python
+from scipy.spatial.distance import cosine
+from sentence_transformers import SentenceTransformer
+
+queries = [
+    "I'm searching for a planet not too far from Earth.",
+]
+
+docs = [
+    "Neptune is the eighth and farthest-known Solar planet from the Sun. In the Solar System, it is the fourth-largest planet by diameter, the third-most-massive planet, and the densest giant planet. It is 17 times the mass of Earth, slightly more massive than its near-twin Uranus.",
+    "TRAPPIST-1d, also designated as 2MASS J23062928-0502285 d, is a small exoplanet (about 30% the mass of the earth), which orbits on the inner edge of the habitable zone of the ultracool dwarf star TRAPPIST-1 approximately 40 light-years (12.1 parsecs, or nearly 3.7336×1014 km) away from Earth in the constellation of Aquarius.",
+    "A harsh desert world orbiting twin suns in the galaxy’s Outer Rim, Tatooine is a lawless place ruled by Hutt gangsters. Many settlers scratch out a living on moisture farms, while spaceport cities such as Mos Eisley and Mos Espa serve as home base for smugglers, criminals, and other rogues.",
+]
+
+class SentenceTransformerSpecb(SentenceTransformer):
+    def encode(self, sentences, **kwargs):
+        is_query = kwargs.pop("is_query", True)
+        if is_query:
+            sentences = "[" + sentences + "]" if isinstance(sentences, str) else ["[" + sent + "]" for sent in sentences]
+        else:
+            sentences = "{" + sentences + "}" if isinstance(sentences, str) else ["{" + sent + "}" for sent in sentences]    
+        return super().encode(sentences, **kwargs)
+        
+model = SentenceTransformerSpecb("Muennighoff/SGPT-125M-weightedmean-msmarco-specb-bitfit")
+
+query_embeddings = model.encode(queries, is_query=True)
+doc_embeddings = model.encode(docs, is_query=False)
+
+# Calculate cosine similarities
+# Cosine similarities are in [-1, 1]. Higher means more similar
+cosine_sim_0_1 = 1 - cosine(query_embeddings[0], doc_embeddings[0])
+cosine_sim_0_2 = 1 - cosine(query_embeddings[0], doc_embeddings[1])
+cosine_sim_0_3 = 1 - cosine(query_embeddings[0], doc_embeddings[2])
+
+print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs[0][:20] + "...", cosine_sim_0_1))
+print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs[1][:20] + "...", cosine_sim_0_2))
+print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs[2][:20] + "...", cosine_sim_0_3))
+```
 
 ### Acknowledgements
 
