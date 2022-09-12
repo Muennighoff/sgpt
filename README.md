@@ -1,4 +1,4 @@
-## SGPT: GPT Sentence Embeddings for Semantic Search
+# SGPT: GPT Sentence Embeddings for Semantic Search
 
 This repository contains code, results & pre-trained models for the paper [SGPT: GPT Sentence Embeddings for Semantic Search](https://arxiv.org/abs/2202.08904).
 
@@ -10,7 +10,7 @@ This repository contains code, results & pre-trained models for the paper [SGPT:
 * 2022-03: 5.8B Bi-Encoder models are now 4% & 1% better on USEB & BEIR, respectively. [Paper](https://arxiv.org/abs/2202.08904) & [models](https://huggingface.co/models?search=sgpt-5.8b) on HF have been updated. This has been done by using larger batch sizes with GradCache, see the paper for more info. If you have previously downloaded them, we recommend replacing it with the new version.
 * 2022-02: We released [our paper](https://arxiv.org/abs/2202.08904). Check it out! :)
 
-### Quick Links
+## Quick Links
 
 - [Overview](#overview)
 - [Structure](#structure)
@@ -30,7 +30,7 @@ This repository contains code, results & pre-trained models for the paper [SGPT:
 - [Acknowledgements](#acknowledgements)
 - [Citation](#citation)
 
-### Overview
+## Overview
 
 We present SGPT-BE and SGPT-CE for applying GPT models as Bi-Encoders or Cross-Encoders to symmetric or asymmetric search. SGPT-BE produces semantically meaningful sentence embeddings by contrastive fine-tuning of only bias tensors and position-weighted mean pooling. SGPT-CE uses log probabilities from GPT models without any fine-tuning. An illustration of the methods follows.
 
@@ -38,7 +38,7 @@ We present SGPT-BE and SGPT-CE for applying GPT models as Bi-Encoders or Cross-E
 
 Feel free to open an issue should you have any questions~
 
-### Structure
+## Structure
 
 ```bash
 .
@@ -79,14 +79,14 @@ Feel free to open an issue should you have any questions~
 Each data sub-directory provides its own README with an overview of its **Structure**, **Downloads** (Datasets, Models) & **Commands** used to produce the datasets, models & other things. Generally, you can find all models at https://huggingface.co/Muennighoff and json results in various datasets at https://www.kaggle.com/muennighoff/datasets. Model names are explained in their Huggingface READMEs. Dataset names are explained in the sub-folders of this repository.
 
 
-### Use SGPT with Huggingface
+## Use SGPT with Huggingface
 
 Below we provide python examples to use the pre-trained models for your own semantic search use case.
 We highly recommend replacing the model names with larger models, e.g. `Muennighoff/SGPT-5.8B-weightedmean-nli-bitfit` for biencoder/symmetric.
 
-#### Biencoder
+### Biencoder
 
-##### Symmetric Semantic Search BE
+#### Symmetric Semantic Search BE
 
 ```python
 import torch
@@ -148,7 +148,7 @@ print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (texts[0], texts[
 print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (texts[0], texts[3], cosine_sim_0_3))
 ```
 
-##### Asymmetric Semantic Search BE
+#### Asymmetric Semantic Search BE
 
 ```python
 import torch
@@ -242,9 +242,9 @@ print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs
 print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs[2][:20] + "...", cosine_sim_0_3))
 ```
 
-#### Crossencoder
+### Crossencoder
 
-##### Asymmetric Semantic Search CE
+#### Asymmetric Semantic Search CE
 
 ```python
 import torch
@@ -293,15 +293,15 @@ for query in queries:
         print(f"Document: {doc[:20] + '...'} Score: {score}")
 ```
 
-##### Symmetric Semantic Search CE
+#### Symmetric Semantic Search CE
 
 You can use the same code as in the above [CE-Asym section](#asymmetric-semantic-search-1) but change the prompt. Feel free to share prompts that work well :)
 
-### Use SGPT with Sentence Transformers
+## Use SGPT with Sentence Transformers
 
-#### Bi-Encoder
+### Bi-Encoder
 
-##### Symmetric Semantic Search BE ST
+#### Symmetric Semantic Search BE ST
 
 Symmetric models are now 100% compatible with the latest [sentence-transformers](https://github.com/UKPLab/sentence-transformers) via `pip install git+https://github.com/UKPLab/sentence-transformers.git`. You should get the same results as in [the HuggingFace script above.](#symmetric-semantic-search-be)
 
@@ -328,9 +328,9 @@ print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (texts[0], texts[
 print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (texts[0], texts[3], cosine_sim_0_3))
 ```
 
-##### Asymmetric Semantic Search BE ST
+#### Asymmetric Semantic Search BE ST
 
-###### SGPT Sentence Transformers
+##### SGPT Sentence Transformers
 
 Install: `pip install --upgrade git+https://github.com/Muennighoff/sentence-transformers.git@sgpt_poolings_specb`
 Use the below, which produces the exact same scores as the [HuggingFace solution above.](#asymmetric-semantic-search-be)
@@ -393,7 +393,7 @@ print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs
 print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs[2][:20] + "...", cosine_sim_0_3))
 ```
 
-###### Original Sentence Transformers
+##### Original Sentence Transformers
 
 If you want to use the Sentence Transformers at `https://github.com/UKPLab/sentence-transformers`, you can use the below.
 Note that this will produce slightly worse scores than [SGPT Sentence Transformers](#sgpt-sentence-transformers), as the special brackets may get intermingled with other tokens upon tokenization. On SciFact (BEIR) NDCG@10 of the below decreases to 0.566 from 0.569 for `SGPT-125M-weightedmean-msmarco-specb-bitfit`.
@@ -437,7 +437,7 @@ print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs
 print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs[2][:20] + "...", cosine_sim_0_3))
 ```
 
-### Acknowledgements
+## Acknowledgements
 
 We thank Constantin Eichenberg and Samuel Weinbach for insightful discussions and valuable feedback throughout the project. We thank Robert Baldock, Marco Bellagente and Koen Oostermeijer for reading drafts of the paper. This work has been supported by OpenAI under the academic access program. 
 This work would not have been possible without:
@@ -445,7 +445,7 @@ This work would not have been possible without:
 - [Eleuther AI Models](https://github.com/EleutherAI/gpt-neox)
 - [Huggingface Transformers](https://github.com/huggingface/transformers)
 
-### Citation
+## Citation
 
 Feel free to cite our paper if SGPT is helpful to you :) 
 
