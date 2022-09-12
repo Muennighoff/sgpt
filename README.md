@@ -4,7 +4,7 @@ This repository contains code, results & pre-trained models for the paper [SGPT:
 
 **************************** Updates ****************************
 
-* 2022-09: SGPT is now easy to use with [Sentence Transformers](https://github.com/UKPLab/sentence-transformers), see [new scripts](#use-sgpt-with-sentence-transformers)
+* 2022-09: SGPT Bi-Encoders are now easy to use with [Sentence Transformers](https://github.com/UKPLab/sentence-transformers), see [new scripts](#use-sgpt-with-sentence-transformers)
 * 2022-08: Multilingual BLOOM SGPT models were released: [Asymmetric, 7.1B parameters](https://huggingface.co/bigscience/sgpt-bloom-7b1-msmarco) & [Symmetric, 1.7B parameters](https://huggingface.co/bigscience-data/sgpt-bloom-1b7-nli). Feel free to open an issue if you need a different model.
 * 2022-06: OpenAI released the mechanism of their Search Endpoint that we compared to SGPT Cross-Encoders in the [paper](https://arxiv.org/abs/2202.08904). Our methods are very similar. Feel free to test their prompt as seen in `crossencoder/beir/openai_search_endpoint_functionality.py`!
 * 2022-03: 5.8B Bi-Encoder models are now 4% & 1% better on USEB & BEIR, respectively. [Paper](https://arxiv.org/abs/2202.08904) & [models](https://huggingface.co/models?search=sgpt-5.8b) on HF have been updated. This has been done by using larger batch sizes with GradCache, see the paper for more info. If you have previously downloaded them, we recommend replacing it with the new version.
@@ -15,14 +15,14 @@ This repository contains code, results & pre-trained models for the paper [SGPT:
 - [Overview](#overview)
 - [Structure](#structure)
 - [Use SGPT with Huggingface](#use-sgpt-with-huggingface)
-    - [Biencoder](#biencoder)
+    - [Bi-Encoder](#bi-encoder)
         - [Symmetric Semantic Search BE](#symmetric-semantic-search-be)
         - [Asymmetric Semantic Search BE](#asymmetric-semantic-search-be)
-    - [Crossencoder](#crossencoder)
+    - [Cross-Encoder](#cross-encoder)
         - [Asymmetric Semantic Search CE](#asymmetric-semantic-search-ce)
         - [Symmetric Semantic Search CE](#symmetric-semantic-search-ce)
 - [Use SGPT with Sentence Transformers](#use-sgpt-with-sentence-transformers)
-    - [Bi-Encoder](#bi-encoder)
+    - [Bi-Encoder ST](#bi-encoder-st)
         - [Symmetric Semantic Search BE ST](#symmetric-semantic-search-be-st)
         - [Asymmetric Semantic Search BE ST](#asymmetric-semantic-search-be-st)
             - [SGPT Sentence Transformers](#sgpt-sentence-transformers)
@@ -84,7 +84,7 @@ Each data sub-directory provides its own README with an overview of its **Struct
 Below we provide python examples to use the pre-trained models for your own semantic search use case.
 We highly recommend replacing the model names with larger models, e.g. `Muennighoff/SGPT-5.8B-weightedmean-nli-bitfit` for biencoder/symmetric.
 
-### Biencoder
+### Bi-Encoder
 
 #### Symmetric Semantic Search BE
 
@@ -242,7 +242,7 @@ print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs
 print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs[2][:20] + "...", cosine_sim_0_3))
 ```
 
-### Crossencoder
+### Cross-Encoder
 
 #### Asymmetric Semantic Search CE
 
@@ -299,7 +299,7 @@ You can use the same code as in the above [CE-Asym section](#asymmetric-semantic
 
 ## Use SGPT with Sentence Transformers
 
-### Bi-Encoder
+### Bi-Encoder ST
 
 #### Symmetric Semantic Search BE ST
 
