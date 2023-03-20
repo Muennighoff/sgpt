@@ -6,6 +6,7 @@ month: 02
 publisher: "arXiv preprint arXiv:2202.08904"
 url: "https://arxiv.org/abs/2202.08904"
 address: "Online"
-authors: 
+type: article
+authors:
   - family-names: Muennighoff
     given-names: Niklas
