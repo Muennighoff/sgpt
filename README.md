@@ -395,7 +395,7 @@ print("Cosine similarity between \"%s\" and \"%s\" is: %.3f" % (queries[0], docs
 
 ##### Original Sentence Transformers
 
-If you want to use the Sentence Transformers at `https://github.com/UKPLab/sentence-transformers`, you can use the below.
+If you want to use the Sentence Transformers at `https://github.com/UKPLab/sentence-transformers`, you can use the below. Make sure to use the latest version (`pip install --upgrade git+https://github.com/UKPLab/sentence-transformers.git`).
 Note that this will produce slightly worse scores than [SGPT Sentence Transformers](#sgpt-sentence-transformers), as the special brackets may get intermingled with other tokens upon tokenization. On SciFact (BEIR) NDCG@10 of the below decreases to 0.566 from 0.569 for `SGPT-125M-weightedmean-msmarco-specb-bitfit`.
 
 ```python
