@@ -9,7 +9,7 @@ This module is for training biencoders on NLI & MSMARCO, also see https://github
 ### Downloads
 
 STS-B evaluations are included in the model files available at https://huggingface.co/Muennighoff.
-We did not evaluate on NLI. MSMARCO evaluation for `SGPT-6.1B-weightedmean-msmarco-specb-bitfit` is available in `sgpt/biencoder/beir`.
+We did not evaluate on NLI. MSMARCO evaluation for `SGPT-5.8B-weightedmean-msmarco-specb-bitfit` is available in `sgpt/biencoder/beir`.
 
 ### Commands
 
