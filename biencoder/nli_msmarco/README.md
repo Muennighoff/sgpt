@@ -40,6 +40,7 @@ Install GradCache from source from the `GradCache` folder:
 
 Install wandb if you would like to use it:
 `pip install wandb`
+You can find the wandb logs of all our runs [here](https://wandb.ai/muennighoff/sgpt?workspace=).
 
 In a conda env this might look like:
 ```bash
