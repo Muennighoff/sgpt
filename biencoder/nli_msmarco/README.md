@@ -70,14 +70,14 @@ accelerate config
 accelerate launch examples/training/msmarco/training_nli_v2.py --modelname bert-large-uncased
 ```
 
-Training of `SGPT-125m-mean-nli` on 1 24GiB GPU:
+Training of `SGPT-125M-mean-nli` on 1 24GiB GPU:
 
 ```bash
 accelerate config
 accelerate launch --main_process_port 1469 examples/training/nli/training_nli_v2.py --model_name EleutherAI/gpt-neo-125m --pooling mean
 ```
 
-Training of `SGPT-125m-weightedmean-nli` on 1 24GiB GPU::
+Training of `SGPT-125M-weightedmean-nli` on 1 24GiB GPU::
 
 ```bash
 accelerate config
@@ -100,21 +100,21 @@ accelerate config
 accelerate launch --main_process_port 1469 examples/training/nli/training_nli_v2.py --model_name EleutherAI/gpt-neo-1.3B --train_batch_size 6 --lr 1e-5 --pooling weightedmean
 ```
 
-Training of `SGPT-125m-mean-nli-linear5` on 4 40GiB GPUs:
+Training of `SGPT-125M-mean-nli-linear5` on 4 40GiB GPUs:
 
 ```bash
 accelerate config
 accelerate launch examples/training/nli/training_nli_v2.py --model_name EleutherAI/gpt-neo-125m --freeze --addxlinear 5 --wandb --useact
 ```
 
-Training of `SGPT-125m-mean-nli-linearthenpool5` on 4 40GiB GPUs:
+Training of `SGPT-125M-mean-nli-linearthenpool5` on 4 40GiB GPUs:
 
 ```bash
 accelerate config
 accelerate launch examples/training/nli/training_nli_v2.py --model_name EleutherAI/gpt-neo-125m --freeze --addxlinear 5 --linearthenpool --wandb --useact
 ```
 
-Training of `SGPT-125m-weightedmean-nli-linearthenpool5` on 4 40GiB GPUs:
+Training of `SGPT-125M-weightedmean-nli-linearthenpool5` on 4 40GiB GPUs:
 
 ```bash
 accelerate config
@@ -155,7 +155,7 @@ accelerate launch examples/training/nli/training_nli_v2.py --model_name Eleuther
 Models with larger batch size (These are the ones used in the paper for the most part). The models use GradCache, a technique for gradient accumulation with contrastive learning. 
 
 
-Training of `SGPT-125m-weightedmean-nli-bitfit` on 8 40GiB GPUs:
+Training of `SGPT-125M-weightedmean-nli-bitfit` on 8 40GiB GPUs:
 
 ```bash
 accelerate config
@@ -224,21 +224,21 @@ accelerate config
 CUDA_VISIBLE_DEVICES=4,5 accelerate launch --main_process_port 2223 examples/training/ms_marco/train_bi-encoder_mnrl.py --model_name bert-base-uncased --train_batch_size 32 --freezenonbias --asym --wandb --wandbwatchlog gradients
 ```
 
-Training of `SGPT-125m-weightedmean-msmarco` on 2 40GiB GPUs:
+Training of `SGPT-125M-weightedmean-msmarco` on 2 40GiB GPUs:
 
 ```bash
 accelerate config
 CUDA_VISIBLE_DEVICES=4,5 accelerate launch --main_process_port 2224 examples/training/ms_marco/train_bi-encoder_mnrl.py --model_name EleutherAI/gpt-neo-125m --train_batch_size 32 --wandb --wandbwatchlog gradients
 ```
 
-Training of `SGPT-125m-weightedmean-msmarco-asym` on 2 40GiB GPUs:
+Training of `SGPT-125M-weightedmean-msmarco-asym` on 2 40GiB GPUs:
 
 ```bash
 accelerate config
 CUDA_VISIBLE_DEVICES=4,5 accelerate launch --main_process_port 2224 examples/training/ms_marco/train_bi-encoder_mnrl.py --model_name EleutherAI/gpt-neo-125m --train_batch_size 32 --asym --wandb --wandbwatchlog gradients
 ```
 
-Training of `SGPT-125m-weightedmean-msmarco-bitfit` on 2 40GiB GPUs:
+Training of `SGPT-125M-weightedmean-msmarco-bitfit` on 2 40GiB GPUs:
 
 ```bash
 accelerate config
@@ -246,32 +246,32 @@ CUDA_VISIBLE_DEVICES=4,5 accelerate launch --main_process_port 2224 examples/tra
 ```
 
 
-Training of `SGPT-125m-weightedmean-msmarco-bitfit` on 2 40GiB GPUs:
+Training of `SGPT-125M-weightedmean-msmarco-bitfit` on 2 40GiB GPUs:
 
 ```bash
 accelerate config
 CUDA_VISIBLE_DEVICES=0,1 accelerate launch --main_process_port 2225 examples/training/ms_marco/train_bi-encoder_mnrl.py --model_name EleutherAI/gpt-neo-125m --train_batch_size 32 --freezenonbias --lr 8e-4 --wandb --wandbwatchlog gradients
 ```
 
-Training of `SGPT-125m-weightedmean-msmarco-speca-bitfit` on 2 40GiB GPUs:
+Training of `SGPT-125M-weightedmean-msmarco-speca-bitfit` on 2 40GiB GPUs:
 
 ```bash
 CUDA_VISIBLE_DEVICES=4,5 accelerate launch --main_process_port 2224 examples/training/ms_marco/train_bi-encoder_mnrl.py --model_name EleutherAI/gpt-neo-125m --train_batch_size 32 --wandb --wandbwatchlog gradients --speca --pooling weightedmean
 ```
 
-Training of `SGPT-125m-lasttoken-msmarco-speca-bitfit` on 2 40GiB GPUs:
+Training of `SGPT-125M-lasttoken-msmarco-speca-bitfit` on 2 40GiB GPUs:
 
 ```bash
 CUDA_VISIBLE_DEVICES=6,7 accelerate launch --main_process_port 2225 examples/training/ms_marco/train_bi-encoder_mnrl.py --model_name EleutherAI/gpt-neo-125m --train_batch_size 32 --wandb --wandbwatchlog gradients --speca --pooling lasttoken
 ```
 
-Training of `SGPT-125m-weightedmean-msmarco-specb-bitfit` on 2 40GiB GPUs:
+Training of `SGPT-125M-weightedmean-msmarco-specb-bitfit` on 2 40GiB GPUs:
 
 ```bash
 CUDA_VISIBLE_DEVICES=4,5 accelerate launch --main_process_port 2224 examples/training/ms_marco/train_bi-encoder_mnrl.py --model_name EleutherAI/gpt-neo-125m --train_batch_size 32 --wandb --wandbwatchlog gradients --specb --pooling weightedmean
 ```
 
-Training of `SGPT-125m-lasttoken-msmarco-specb-bitfit` on 2 40GiB GPUs::
+Training of `SGPT-125M-lasttoken-msmarco-specb-bitfit` on 2 40GiB GPUs::
 
 ```bash
 CUDA_VISIBLE_DEVICES=6,7 accelerate launch --main_process_port 2225 examples/training/ms_marco/train_bi-encoder_mnrl.py --model_name EleutherAI/gpt-neo-125m --train_batch_size 32 --wandb --wandbwatchlog gradients --specb --pooling lasttoken
@@ -313,7 +313,7 @@ If unspecified in the arguments, batch size is always 64 & lr is 2e-5 (argparse 
 
 Models with larger batch size (These are the ones used in the paper for the most part). The models use GradCache, a technique for gradient accumulation with contrastive learning. 
 
-Training of `SGPT-125m-weightedmean-msmarco-specb-bitfit` on 8 40GiB GPUs:
+Training of `SGPT-125M-weightedmean-msmarco-specb-bitfit` on 8 40GiB GPUs:
 
 ```
 cd sentence-transformers
