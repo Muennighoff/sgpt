@@ -4,6 +4,7 @@ This repository contains code, results & pre-trained models for the paper [SGPT:
 
 **************************** Updates ****************************
 
+* 2024-02: We released [GRIT & GritLM](https://arxiv.org/abs/2402.09906) - These models unify SGPT Bi-Encoders, Cross-Encoders, symmetric, asymmetric, and regular GPT (i.e. generation) all in 1 single model at much better performance on all accounts. We recommend switching to these new models :)
 * 2022-09: SGPT Bi-Encoders are now easy to use with [Sentence Transformers](https://github.com/UKPLab/sentence-transformers), see [new scripts](#use-sgpt-with-sentence-transformers)
 * 2022-08: Multilingual BLOOM SGPT models were released: [Asymmetric, 7.1B parameters](https://huggingface.co/bigscience/sgpt-bloom-7b1-msmarco) & [Symmetric, 1.7B parameters](https://huggingface.co/bigscience-data/sgpt-bloom-1b7-nli). Feel free to open an issue if you need a different model.
 * 2022-06: OpenAI released the mechanism of their Search Endpoint that we compared to SGPT Cross-Encoders in the [paper](https://arxiv.org/abs/2202.08904). Our methods are very similar. Feel free to test their prompt as seen in `crossencoder/beir/openai_search_endpoint_functionality.py`!
