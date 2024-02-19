@@ -1,0 +1,12 @@
+cff-version: "1.2.0"
+message: "If you use this software, please cite it using these metadata."
+title: "SGPT: GPT Sentence Embeddings for Semantic Search"
+year: 2022
+month: 2
+publisher: "arXiv preprint arXiv:2202.08904"
+url: "https://arxiv.org/abs/2202.08904"
+address: "Online"
+type: article
+authors:
+  - family-names: Muennighoff
+    given-names: Niklas
